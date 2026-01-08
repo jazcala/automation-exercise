@@ -1,0 +1,8 @@
+services:
+  playwright:
+    build: .
+    volumes:
+      - .:/app
+      - /app/node_modules
+    environment:
+      - CI=true
