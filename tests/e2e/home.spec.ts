@@ -8,8 +8,8 @@ test.describe('Homepage Visuals', () => {
     await expect(page).toHaveScreenshot('homepage.png', {
       mask: [page.locator('#slider-carousel')],
       fullPage: true,
-      maxDiffPixels: 100,      // allow up to 100 pixels to be different
-      maxDiffPixelRatio: 0.1,  // allow 10% difference
+      maxDiffPixels: 100,
+      maxDiffPixelRatio: 0.1,
     });
   });
 
