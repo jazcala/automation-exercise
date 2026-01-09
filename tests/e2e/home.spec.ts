@@ -12,6 +12,8 @@ test.describe('Homepage Visuals', () => {
   test('should match the baseline snapshot', async ({ page }) => {
 
     await page.goto('/');
+    await expect(page.locator('footer')).toBeVisible();
+    await TestUtils.prepareForScreenshot(page);
     await expect(page).toHaveScreenshot('homepage.png', { fullPage: true });
 
   });

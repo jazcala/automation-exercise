@@ -8,6 +8,13 @@ playwright-report/
 blob-report/
 playwright/.cache/
 
+# Ignore local snapshots (Mac/Windows)
+*-darwin.png
+*-win32.png
+
+# Keep the Linux snapshots as the source of truth
+!*-linux.png
+
 # --- IDE & OS ---
 .vscode/
 .idea/
