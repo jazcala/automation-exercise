@@ -1,16 +1,19 @@
 import { test, expect } from '@playwright/test';
+import { TestUtils } from '../../src/utils/test-utils';
 
 test.describe('Homepage Visuals', () => {
 
-  test('should match the baseline snapshot', async ({ page }) => {
-    await page.goto('/');
+  test.beforeEach(async ({ page }) => {
 
-    await expect(page).toHaveScreenshot('homepage.png', {
-      mask: [page.locator('#slider-carousel')],
-      fullPage: true,
-      maxDiffPixels: 100,
-      maxDiffPixelRatio: 0.1,
-    });
+    await TestUtils.blockAds(page);
+
+  });
+
+  test('should match the baseline snapshot', async ({ page }) => {
+
+    await page.goto('/');
+    await expect(page).toHaveScreenshot('homepage.png', { fullPage: true });
+
   });
 
 });

@@ -14,6 +14,12 @@ export default defineConfig({
       'Accept': 'application/json',
     }
   },
+  expect: {
+    toHaveScreenshot: {
+      maxDiffPixels: 100,
+      threshold: 0.2,
+    },
+  },
 
   projects: [
     {
