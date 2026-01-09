@@ -32,7 +32,7 @@ jobs:
         run: npx playwright test --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}
 
       - name: Upload blob report to GitHub Actions Artifacts
-        if: ${{ !cancelled() }}
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: all-blob-reports-${{ matrix.shardIndex }}
@@ -40,8 +40,7 @@ jobs:
           retention-days: 1
 
   merge-reports:
-    name: "Merge and Publish Report"
-    if: ${{ !cancelled() }}
+    if: always()
     needs: [playwright-tests]
     runs-on: ubuntu-latest
     steps:
@@ -52,7 +51,7 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Download all blob reports
+      - name: Download all blob reports from GitHub Actions Artifacts
         uses: actions/download-artifact@v4
         with:
           path: all-blob-reports
@@ -62,9 +61,9 @@ jobs:
       - name: Merge into HTML Report
         run: npx playwright merge-reports --reporter html ./all-blob-reports
 
-      - name: Upload final HTML report
+      - name: Upload HTML report
         uses: actions/upload-artifact@v4
         with:
-          name: final-playwright-report
-          path: playwright-report/
-          retention-days: 30
+          name: playwright-report
+          path: playwright-report
+          retention-days: 14
