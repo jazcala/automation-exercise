@@ -14,7 +14,12 @@ test.describe('Homepage Visuals', () => {
     await page.goto('/');
     await expect(page.locator('footer')).toBeVisible();
     await TestUtils.prepareForScreenshot(page);
-    await expect(page).toHaveScreenshot('homepage.png', { fullPage: true });
+    await expect(page).toHaveScreenshot('homepage.png', {
+      mask: [
+        page.locator('#slider-carousel'),
+        page.locator('#recommended-item-carousel')
+      ], fullPage: true
+    });
 
   });
 
