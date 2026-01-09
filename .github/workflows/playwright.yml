@@ -43,6 +43,10 @@ jobs:
     if: always()
     needs: [playwright-tests]
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -67,3 +71,15 @@ jobs:
           name: playwright-report
           path: playwright-report
           retention-days: 14
+
+      - name: 🚀 Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: 📦 Upload Pages Artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: playwright-report/
+
+      - name: 🌐 Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
