@@ -1,5 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { UserApi } from '../../src/api/user.api';
+import { generateUserData } from '../../src/utils/user-factory';
+import { UserPayload } from '../../src/interfaces/user.payload';
 
 test.describe('User Account API Lifecycle', () => {
   let userApi: UserApi;
@@ -9,20 +11,7 @@ test.describe('User Account API Lifecycle', () => {
   });
 
   test('should create and delete a user account via API', async () => {
-    const timestamp = Date.now();
-    const testUser = {
-      name: 'Tester',
-      email: `testuser_${timestamp}@example.com`,
-      password: 'password123',
-      firstname: 'Test',
-      lastname: 'User',
-      address1: '123 Test St',
-      country: 'Testland',
-      state: 'Test State',
-      city: 'Test City',
-      mobile_number: '123456789',
-      zipcode: '12345'
-    };
+    const testUser: UserPayload = generateUserData();
     // 1. Create Account
     const createResponse = await userApi.createAccount(testUser);
     expect(createResponse.status()).toBe(200);
