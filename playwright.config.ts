@@ -9,6 +9,8 @@ export default defineConfig({
   reporter: process.env.CI ? 'blob' : 'html',
   use: {
     baseURL: 'https://automationexercise.com',
+    screenshot: 'only-on-failure',
+    testIdAttribute: 'data-qa',
     trace: 'on-first-retry',
     extraHTTPHeaders: {
       'Accept': 'application/json',
