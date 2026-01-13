@@ -3,12 +3,14 @@ import { UserApi } from '../api/user.api';
 import { generateUserData } from '../utils/user-factory';
 import { UserPayload } from '../interfaces/user.payload';
 import { LoginPage } from '../pages/login.page';
+import { HomePage } from '../pages/home.page';
 
 type MyObjects = {
   userApi: UserApi;
   preCreatedUser: UserPayload;
   loginReadyPage: LoginPage;
   loginPage: LoginPage;
+  homePage: HomePage;
 }
 
 export const test = base.extend<MyObjects>({
@@ -37,7 +39,12 @@ export const test = base.extend<MyObjects>({
     const loginPage = new LoginPage(page);
     await loginPage.navigate();
     await use(loginPage);
+  },
+
+  homePage: async ({ page }, use) => {
+    await use(new HomePage(page));
   }
+
 });
 
 export { expect } from '@playwright/test';
