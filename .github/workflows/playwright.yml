@@ -6,9 +6,32 @@ on:
     branches: [main, master]
 
 jobs:
-  playwright-tests:
-    name: "Playwright Parallel Tests"
-    timeout-minutes: 60
+  # --- STEP 1: RUN API TESTS ONCE ---
+  api-tests:
+    name: "API Tests"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: "npm"
+      - name: Install dependencies
+        run: npm ci
+      - name: Run API Tests
+        run: npx playwright test --project=api --reporter=blob
+      - name: Upload API blob report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: all-blob-reports-api
+          path: blob-report
+          retention-days: 1
+
+  # --- STEP 2: RUN UI TESTS IN PARALLEL ---
+  ui-tests:
+    name: "UI Parallel Tests"
+    needs: api-tests # Optional: waits for API to pass
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -21,32 +44,28 @@ jobs:
         with:
           node-version: lts/*
           cache: "npm"
-
       - name: Install dependencies
         run: npm ci
-
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
+      - name: Run Playwright UI tests
+        # We target Chromium/Firefox/Webkit projects and exclude API/Visual
+        run: npx playwright test --project=chromium --project=firefox --project=webkit --grep-invert @visual --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}
 
-      - name: Run Playwright tests
-        run: npx playwright test --grep-invert @visual --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}
-
-      - name: Upload blob report to GitHub Actions Artifacts
+      - name: Upload UI blob reports
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: all-blob-reports-${{ matrix.shardIndex }}
+          name: all-blob-reports-ui-${{ matrix.shardIndex }}
           path: blob-report
           retention-days: 1
 
+  # --- STEP 3: MERGE EVERYTHING ---
   merge-reports:
     if: always()
-    needs: [playwright-tests]
+    needs: [api-tests, ui-tests]
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      pages: write
-      id-token: write
+    # ... (rest of your existing merge-reports logic stays the same)
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -54,14 +73,12 @@ jobs:
           node-version: lts/*
       - name: Install dependencies
         run: npm ci
-
-      - name: Download all blob reports from GitHub Actions Artifacts
+      - name: Download all reports
         uses: actions/download-artifact@v4
         with:
           path: all-blob-reports
           pattern: all-blob-reports-*
           merge-multiple: true
-
       - name: Merge into HTML Report
         run: npx playwright merge-reports --reporter html ./all-blob-reports
 
