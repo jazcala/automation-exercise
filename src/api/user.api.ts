@@ -1,5 +1,5 @@
 import { APIResponse } from '@playwright/test';
-import { UserPayload } from '../interfaces/user.payload';
+import { User } from '../interfaces/interfaces';
 import { BaseApi } from './base.api';
 
 export class UserApi extends BaseApi {
@@ -7,7 +7,7 @@ export class UserApi extends BaseApi {
   /**
    * post: Creates a new user account on Automation Exercise.
    */
-  public async createAccount(userData: UserPayload): Promise<APIResponse> {
+  public async createAccount(userData: User): Promise<APIResponse> {
     return await this.request.post(this.endpoint('/createAccount'), {
       form: { ...userData }
     });
@@ -16,7 +16,7 @@ export class UserApi extends BaseApi {
   /**
    * delete: Deletes an existing user account.
    */
-  public async deleteAccount(userCredentials: Pick<UserPayload, 'email' | 'password'>): Promise<APIResponse> {
+  public async deleteAccount(userCredentials: Pick<User, 'email' | 'password'>): Promise<APIResponse> {
     return await this.request.delete(this.endpoint('/deleteAccount'), {
       form: userCredentials,
     });
@@ -25,14 +25,14 @@ export class UserApi extends BaseApi {
   /**
     * Put: update user account
   */
-  public async updateAccount(userData: UserPayload): Promise<APIResponse> {
+  public async updateAccount(userData: User): Promise<APIResponse> {
     return await this.request.put(this.endpoint('/updateAccount'), { form: { ...userData } });
   }
 
   /**
     * get: Get user account details by email
   */
-  public async getAccountDetailsByEmail(email: UserPayload['email']): Promise<APIResponse> {
+  public async getAccountDetailsByEmail(email: User['email']): Promise<APIResponse> {
     return await this.request.get(this.endpoint('/getUserDetailByEmail'), { params: { email } });
   };
 

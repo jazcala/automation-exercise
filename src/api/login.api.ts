@@ -1,8 +1,8 @@
 import { APIResponse } from '@playwright/test';
-import { UserPayload } from '../interfaces/user.payload';
+import { User } from '../interfaces/interfaces';
 import { BaseApi } from './base.api';
 
-export type LoginCredentials = Partial<Pick<UserPayload, 'email' | 'password'>>;
+export type LoginCredentials = Partial<Pick<User, 'email' | 'password'>>;
 
 export class LoginApi extends BaseApi {
 

@@ -1,12 +1,12 @@
 import { generateUserData } from '../../src/utils/user-factory';
-import { UserPayload } from '../../src/interfaces/user.payload';
+import { User } from '../../src/interfaces/interfaces';
 import { test, expect } from '../../src/fixtures/base-fixture';
 
 test.describe('User Account API Lifecycle', () => {
 
   test('POST - create user', async ({ userApi }) => {
     // *  Test 1: Create User (POST) -> Verify success.÷
-    const testUser: UserPayload = generateUserData();
+    const testUser: User = generateUserData();
     const response = await userApi.createAccount(testUser);
     expect(response.status()).toBe(200);
     const body = await response.json();
@@ -60,7 +60,7 @@ test.describe('User Account API Lifecycle', () => {
   test('DELETE - Delete user', async ({ userApi }) => {
     // *  Test 4: Delete User(DELETE) -> Verify account is gone.
     //1. Create Account
-    const testUser: UserPayload = generateUserData();
+    const testUser: User = generateUserData();
     const responseCreate = await userApi.createAccount(testUser);
     expect(responseCreate.status()).toBe(200);
 

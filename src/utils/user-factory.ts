@@ -1,7 +1,7 @@
 import { faker } from '@faker-js/faker';
-import { UserPayload } from '../interfaces/user.payload';
+import { User } from '../interfaces/interfaces';
 
-export const generateUserData: () => UserPayload = (): UserPayload => {
+export const generateUserData: () => User = (): User => {
   return {
     name: faker.person.fullName(),
     email: faker.internet.email(),
