@@ -31,7 +31,7 @@ jobs:
   # --- STEP 2: RUN UI TESTS IN PARALLEL ---
   ui-tests:
     name: "UI Parallel Tests"
-    needs: api-tests # Optional: waits for API to pass
+    needs: api-tests
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -49,7 +49,6 @@ jobs:
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
       - name: Run Playwright UI tests
-        # We target Chromium/Firefox/Webkit projects and exclude API/Visual
         run: npx playwright test --project=chromium --project=firefox --project=webkit --grep-invert @visual --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}
 
       - name: Upload UI blob reports
@@ -65,7 +64,10 @@ jobs:
     if: always()
     needs: [api-tests, ui-tests]
     runs-on: ubuntu-latest
-    # ... (rest of your existing merge-reports logic stays the same)
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
