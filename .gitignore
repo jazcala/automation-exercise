@@ -31,3 +31,5 @@ playwright/.cache/
 # --- Environments & Logs ---
 .env
 *.log
+.secrets
+artifacts/

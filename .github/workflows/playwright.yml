@@ -19,7 +19,7 @@ jobs:
       - name: Install dependencies
         run: npm ci
       - name: Run API Tests
-        run: npx playwright test --project=api --reporter=blob
+        run: npx playwright test --project=api-tests --reporter=blob
       - name: Upload API blob report
         if: always()
         uses: actions/upload-artifact@v4
