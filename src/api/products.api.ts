@@ -24,8 +24,8 @@ export class ProductsApi extends BaseApi {
    * @param search
    * @returns APIResponse Searched product list
    */
-  async searchProduct(search: string): Promise<APIResponse> {
-    return await this.request.post(this.endpoint('/searchProduct'), { params: { search } });
+  async searchProduct(search?: string): Promise<APIResponse> {
+    return await this.request.post(this.endpoint('/searchProduct'), { form: { ...(search !== undefined && { search_product: search }) } });
 
   }
 
