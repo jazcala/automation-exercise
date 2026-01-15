@@ -25,18 +25,28 @@ export default defineConfig({
 
   projects: [
     {
+      name: 'api-tests',
+      testMatch: /.*\.api\.spec\.ts/,
+      use: {
+        // No browser needed for pure API tests!
+      },
+    },
+    {
       name: 'chromium',
       use: { ...devices['Desktop Chrome'] },
+      testIgnore: /.*\.api\.spec\.ts/,
     },
 
     {
       name: 'firefox',
       use: { ...devices['Desktop Firefox'] },
+      testIgnore: /.*\.api\.spec\.ts/,
     },
 
     {
       name: 'webkit',
       use: { ...devices['Desktop Safari'] },
+      testIgnore: /.*\.api\.spec\.ts/,
     },
 
   ],

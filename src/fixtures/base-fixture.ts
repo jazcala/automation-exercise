@@ -1,5 +1,6 @@
 import { test as base } from '@playwright/test';
 import { UserApi } from '../api/user.api';
+import { LoginApi } from '../api/login.api';
 import { generateUserData } from '../utils/user-factory';
 import { UserPayload } from '../interfaces/user.payload';
 import { LoginPage } from '../pages/login.page';
@@ -7,6 +8,7 @@ import { HomePage } from '../pages/home.page';
 
 type MyObjects = {
   userApi: UserApi;
+  loginApi: LoginApi;
   preCreatedUser: UserPayload;
   loginReadyPage: LoginPage;
   loginPage: LoginPage;
@@ -17,6 +19,10 @@ export const test = base.extend<MyObjects>({
 
   userApi: async ({ request }, use) => {
     await use(new UserApi(request));
+  },
+
+  loginApi: async ({ request }, use) => {
+    await use(new LoginApi(request));
   },
 
   preCreatedUser: async ({ userApi }, use) => {
