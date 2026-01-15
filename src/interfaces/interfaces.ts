@@ -1,4 +1,4 @@
-export interface UserPayload {
+export interface User {
   name: string;
   email: string;
   password: string;
@@ -16,4 +16,20 @@ export interface UserPayload {
   state: string;
   city: string;
   mobile_number: string;
+}
+
+export interface Brand {
+  id: number;
+  brand: string;
+}
+
+export interface Product {
+  id: number;
+  name: string;
+  price: string;
+  brand: string;
+  category: {
+    usertype: { usertype: string };
+    category: string;
+  };
 }

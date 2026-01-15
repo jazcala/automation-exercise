@@ -1,13 +1,19 @@
 import { test as base } from '@playwright/test';
 import { UserApi } from '../api/user.api';
+import { LoginApi } from '../api/login.api';
 import { generateUserData } from '../utils/user-factory';
-import { UserPayload } from '../interfaces/user.payload';
+import { User } from '../interfaces/interfaces';
 import { LoginPage } from '../pages/login.page';
 import { HomePage } from '../pages/home.page';
+import { ProductsApi } from '../api/products.api';
+import { BrandsApi } from '../api/brands.api';
 
 type MyObjects = {
   userApi: UserApi;
-  preCreatedUser: UserPayload;
+  loginApi: LoginApi;
+  productsApi: ProductsApi;
+  brandsApi: BrandsApi;
+  preCreatedUser: User;
   loginReadyPage: LoginPage;
   loginPage: LoginPage;
   homePage: HomePage;
@@ -19,8 +25,20 @@ export const test = base.extend<MyObjects>({
     await use(new UserApi(request));
   },
 
+  loginApi: async ({ request }, use) => {
+    await use(new LoginApi(request));
+  },
+
+  productsApi: async ({ request }, use) => {
+    await use(new ProductsApi(request));
+  },
+
+  brandsApi: async ({ request }, use) => {
+    await use(new BrandsApi(request));
+  },
+
   preCreatedUser: async ({ userApi }, use) => {
-    const userData = generateUserData();
+    const userData: User = generateUserData();
     await userApi.createAccount(userData);
     // provide the user data to the test
     await use(userData);

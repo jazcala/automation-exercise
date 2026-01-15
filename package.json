@@ -5,8 +5,10 @@
   "main": "index.js",
   "scripts": {
     "test": "playwright test",
+    "test:api":"playwright test --project=api",
+    "test:ui":"playwright test --project=chromium --headed",
     "test:smoke": "playwright test --grep @smoke",
-    "test:ui": "playwright test --ui",
+    "test:debug": "playwright test --ui",
     "test:report": "playwright show-report",
     "test:pre-push": "docker-compose run --rm --remove-orphans playwright npx playwright test",
     "lint": "eslint .",

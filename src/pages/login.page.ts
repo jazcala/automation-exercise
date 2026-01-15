@@ -1,6 +1,6 @@
 import { Page, Locator } from '@playwright/test';
 import { BasePage } from './base.page';
-import { UserPayload } from '../interfaces/user.payload';
+import { User } from '../interfaces/interfaces';
 import { HomePage } from './home.page';
 
 export class LoginPage extends BasePage {
@@ -34,7 +34,7 @@ export class LoginPage extends BasePage {
 
   }
 
-  async login(email: UserPayload['email'] = '', password: UserPayload['password'] = ''): Promise<HomePage> {
+  async login(email: User['email'] = '', password: User['password'] = ''): Promise<HomePage> {
 
     await this.loginEmailField.fill(email);
     await this.loginPasswordField.fill(password);
