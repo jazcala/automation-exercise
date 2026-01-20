@@ -13,6 +13,7 @@ type MyObjects = {
   loginApi: LoginApi;
   productsApi: ProductsApi;
   brandsApi: BrandsApi;
+  persistentUser: User;
   preCreatedUser: User;
   loginReadyPage: LoginPage;
   loginPage: LoginPage;
@@ -36,11 +37,15 @@ export const test = base.extend<MyObjects>({
   brandsApi: async ({ request }, use) => {
     await use(new BrandsApi(request));
   },
+  persistentUser: async ({ userApi }, use) => {
+    const userData: User = generateUserData();
+    await userApi.createAccount(userData);
+    await use(userData);
+  },
 
   preCreatedUser: async ({ userApi }, use) => {
     const userData: User = generateUserData();
     await userApi.createAccount(userData);
-    // provide the user data to the test
     await use(userData);
     // --- TEARDOWN ---
     await userApi.deleteAccount({

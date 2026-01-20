@@ -12,7 +12,7 @@ const expectedProductSchema = {
   }
 };
 
-test.describe('Products API Tests', () => {
+test.describe('Products API Tests @api', () => {
 
   test('verify get all product list', async ({ productsApi }) => {
     const response = await productsApi.getProductList();

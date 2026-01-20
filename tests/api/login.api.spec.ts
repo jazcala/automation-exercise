@@ -1,10 +1,10 @@
 import { test, expect } from '../../src/fixtures/base-fixture';
 
-test.describe('Login API tests', () => {
+test.describe('Login API tests @api', () => {
 
   test('verify login with valid credential', async ({ loginApi, preCreatedUser }) => {
     const { email, password } = preCreatedUser;
-    const response = await loginApi.verifyLogin({ email, password });
+    const response = await loginApi.login({ email, password });
     expect(response.status()).toBe(200);
     const body = await response.json();
     expect.soft(body.responseCode).toBe(200);
@@ -13,7 +13,7 @@ test.describe('Login API tests', () => {
   });
 
   test('login without email parameter', async ({ loginApi }) => {
-    const response = await loginApi.verifyLogin({ password: 'password' });
+    const response = await loginApi.login({ password: 'password' });
     expect(response.status()).toBe(200);
     const body = await response.json();
     expect.soft(body.responseCode).toBe(400);
@@ -21,7 +21,7 @@ test.describe('Login API tests', () => {
   });
 
   test('login without password parameter', async ({ loginApi }) => {
-    const response = await loginApi.verifyLogin({ email: 'some@email.com' });
+    const response = await loginApi.login({ email: 'some@email.com' });
     expect(response.status()).toBe(200);
     const body = await response.json();
     expect.soft(body.responseCode).toBe(400);
@@ -29,7 +29,7 @@ test.describe('Login API tests', () => {
   });
 
   test('verify login with invalid method - delete', async ({ loginApi }) => {
-    const response = await loginApi.verifyLoginWithInvalidMethod();
+    const response = await loginApi.loginWithInvalidMethod();
     expect(response.status()).toBe(200);
     const body = await response.json();
     expect.soft(body.responseCode).toBe(405);
@@ -39,7 +39,7 @@ test.describe('Login API tests', () => {
   test('login with invalid credential', async ({ preCreatedUser, loginApi }) => {
     const { email } = preCreatedUser;
     const password = 'password';
-    const response = await loginApi.verifyLogin({ email, password });
+    const response = await loginApi.login({ email, password });
     expect(response.status()).toBe(200);
     const body = await response.json();
     expect.soft(body.responseCode).toBe(404);

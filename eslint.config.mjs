@@ -92,6 +92,27 @@ export default [
   },
 
   {
+    files: ["tests/api/**/*.spec.ts", "tests/visual/**/*.spec.ts"],
+    plugins: {
+      playwright: playwright,
+    },
+    rules: {
+      // Enforce that titles must contain the specific tag
+      "playwright/valid-title": [
+        "error",
+        {
+          mustMatch: {
+            describe: [
+              "@api|@visual",
+              "Standard QA Alert: Describe blocks in this folder must include the '@api' or '@visual' tag.",
+            ],
+          },
+        },
+      ],
+      "playwright/valid-test-tags": "error",
+    },
+  },
+  {
     ignores: ["test-results/", "playwright-report/", "dist/", "node_modules/"],
   },
 ];

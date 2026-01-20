@@ -33,3 +33,4 @@ playwright/.cache/
 *.log
 .secrets
 artifacts/
+playwright/.auth/
