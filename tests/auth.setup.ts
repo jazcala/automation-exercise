@@ -1,6 +1,6 @@
 import { test, expect } from '../src/fixtures/base-fixture';
 import * as fs from 'fs';
-import path from 'path';
+import * as path from 'path';
 
 const authDir: string = path.resolve('playwright/.auth');
 const authFile: string = path.join(authDir, 'user.json');
