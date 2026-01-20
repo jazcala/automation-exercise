@@ -2,7 +2,7 @@ import { generateUserData } from '../../src/utils/user-factory';
 import { User } from '../../src/interfaces/interfaces';
 import { test, expect } from '../../src/fixtures/base-fixture';
 
-test.describe('User Account API Lifecycle', () => {
+test.describe('User Account API Lifecycle @api', () => {
 
   test('POST - create user', async ({ userApi }) => {
     // *  Test 1: Create User (POST) -> Verify success.÷

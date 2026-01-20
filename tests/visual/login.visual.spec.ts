@@ -1,9 +1,9 @@
 import { test, expect } from '../../src/fixtures/base-fixture';
 import { TestUtils } from '../../src/utils/test-utils';
 
-test.describe('Login Page Visual Validation', () => {
+test.describe('Login Page Visual Validation @visual', () => {
 
-  test('Login form layout snapshot @visual', async ({ loginPage, page }) => {
+  test('Login form layout snapshot', async ({ loginPage, page }) => {
     await TestUtils.blockAds(page);
     await loginPage.navigate();
     await expect(loginPage.loginEmailField).toBeVisible();

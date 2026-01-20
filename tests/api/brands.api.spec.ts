@@ -1,7 +1,7 @@
 import { test, expect } from '../../src/fixtures/base-fixture';
 import { Brand } from '../../src/interfaces/interfaces';
 
-test.describe('Brands API Tests', () => {
+test.describe('Brands API Tests @api', () => {
 
   test('verify get brands', async ({ brandsApi }) => {
 

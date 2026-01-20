@@ -49,7 +49,7 @@ jobs:
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
       - name: Run Playwright UI tests
-        run: npx playwright test --project=chromium --project=firefox --project=webkit --grep-invert @visual --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}
+        run: npx playwright test --grep-invert "@visual|@api" --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}
 
       - name: Upload UI blob reports
         if: always()
