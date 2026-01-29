@@ -7,6 +7,8 @@ import { LoginPage } from '../pages/login.page';
 import { HomePage } from '../pages/home.page';
 import { ProductsApi } from '../api/products.api';
 import { BrandsApi } from '../api/brands.api';
+import { ProductPage } from '../pages/products.page';
+import { SignupPage } from '../pages/signup.page';
 
 type MyObjects = {
   userApi: UserApi;
@@ -15,9 +17,18 @@ type MyObjects = {
   brandsApi: BrandsApi;
   persistentUser: User;
   preCreatedUser: User;
+  preCreatedFullUser: User;
+  userData: User;
+  userDataFull: User;
   loginReadyPage: LoginPage;
   loginPage: LoginPage;
   homePage: HomePage;
+  productPage: ProductPage;
+  productPageReady: ProductPage;
+  signupReadyPage: {
+    signupPage: SignupPage;
+    user: User;
+  };
 }
 
 export const test = base.extend<MyObjects>({
@@ -53,6 +64,25 @@ export const test = base.extend<MyObjects>({
       password: userData.password
     });
   },
+  preCreatedFullUser: async ({ userApi }, use) => {
+    const userData: User = generateUserData(true);
+    await userApi.createAccount(userData);
+    await use(userData);
+    // --- TEARDOWN ---
+    await userApi.deleteAccount({
+      email: userData.email,
+      password: userData.password
+    });
+  },
+
+  userData: async ({ }, use) => {
+    const userData: User = generateUserData();
+    await use(userData);
+  },
+  userDataFull: async ({ }, use) => {
+    const userData: User = generateUserData(true);
+    await use(userData);
+  },
 
   loginPage: async ({ page }, use) => {
     await use(new LoginPage(page));
@@ -66,7 +96,31 @@ export const test = base.extend<MyObjects>({
 
   homePage: async ({ page }, use) => {
     await use(new HomePage(page));
-  }
+  },
+
+  signupReadyPage: async ({ loginReadyPage, userApi, page }, use) => {
+    const user = generateUserData(true);
+    await loginReadyPage.signup(user.name, user.email);
+    const signupPage = new SignupPage(page);
+
+    await use({ signupPage, user });
+
+    // --- TEARDOWN ---
+    await userApi.deleteAccount({
+      email: user.email,
+      password: user.password
+    });
+  },
+
+  productPage: async ({ page }, use) => {
+    await use(new ProductPage(page));
+  },
+
+  productPageReady: async ({ page }, use) => {
+    const productPage = new ProductPage(page);
+    productPage.navigate();
+    await use(productPage);
+  },
 
 });
 
