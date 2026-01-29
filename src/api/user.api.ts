@@ -9,7 +9,25 @@ export class UserApi extends BaseApi {
    */
   public async createAccount(userData: User): Promise<APIResponse> {
     return await this.request.post(this.endpoint('/createAccount'), {
-      form: { ...userData }
+      form: {
+        name: userData.name,
+        email: userData.email,
+        password: userData.password,
+        title: userData.title || '',
+        birth_date: userData.birth_day || '',
+        birth_month: userData.birth_month || '',
+        birth_year: userData.birth_year || '',
+        firstname: userData.first_name,
+        lastname: userData.last_name,
+        company: userData.company || '',
+        address1: userData.address1,
+        address2: userData.address2 || '',
+        country: userData.country,
+        zipcode: userData.zipcode,
+        state: userData.state,
+        city: userData.city,
+        mobile_number: userData.mobile_number
+      }
     });
   }
 
