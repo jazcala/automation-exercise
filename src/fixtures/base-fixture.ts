@@ -95,7 +95,9 @@ export const test = base.extend<MyObjects>({
   },
 
   homePage: async ({ page }, use) => {
-    await use(new HomePage(page));
+    const homePage = new HomePage(page);
+    await homePage.navigate();
+    await use(homePage);
   },
 
   signupReadyPage: async ({ loginReadyPage, userApi, page }, use) => {
