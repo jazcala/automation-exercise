@@ -32,26 +32,26 @@ export default defineConfig({
     // --- CHROMIUM (primary dev & fast feedback environment) ---
     {
       name: 'chromium-logged-in',
-      testMatch: /tests\/e2e\/.*\.logged\.spec\.ts/,
+      testMatch: /.*\.logged\.spec\.ts/,
       dependencies: ['setup'],
       use: { ...devices['Desktop Chrome'], storageState: LOGGED_IN_STATE },
     },
     {
       name: 'chromium-guest',
-      testMatch: [/tests\/auth\/.*\.spec\.ts/, /tests\/guest\/.*\.spec\.ts/],
+      testMatch: [/tests\/auth\/.*\.spec\.ts/, /.*\.guest\.spec\.ts/],
       use: { ...devices['Desktop Chrome'], storageState: GUEST_STATE },
     },
 
     // --- REGRESSION (Firefox & Webkit - logged in user) ---
     {
       name: 'firefox-logged-in',
-      testMatch: /tests\/e2e\/.*\.spec\.ts/,
+      testMatch: /.*\.logged\.spec\.ts/,
       dependencies: ['setup'],
       use: { ...devices['Desktop Firefox'], storageState: LOGGED_IN_STATE },
     },
     {
       name: 'webkit-logged-in',
-      testMatch: /tests\/e2e\/.*\.spec\.ts/,
+      testMatch: /.*\.logged\.spec\.ts/,
       dependencies: ['setup'],
       use: { ...devices['Desktop Safari'], storageState: LOGGED_IN_STATE },
     },

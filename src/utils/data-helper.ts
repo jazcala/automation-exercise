@@ -1,3 +1,4 @@
+import { Product } from '../interfaces/interfaces';
 export class DataHelper {
   /**
    * Generates an array of strings representing a numeric range
@@ -44,5 +45,33 @@ export class DataHelper {
       'New Zealand',
       'Singapore'
     ];
+  }
+
+  static getExpectedCartTableHeaders(): string[] {
+    return [
+      'Item',
+      'Description',
+      'Price',
+      'Quantity',
+      'Total',
+      ''
+    ];
+  }
+
+  static getExpectedProduct(): Product {
+
+    return {
+      id: 4,
+      name: 'Stylish Dress',
+      price: 'Rs. 1500',
+      brand: 'Madame',
+      category: {
+        usertype: {
+          usertype: 'Women'
+        },
+        category: 'Dress'
+      }
+    };
+
   }
 }

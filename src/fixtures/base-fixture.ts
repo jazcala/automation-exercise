@@ -1,89 +1,30 @@
-import { test as base } from '@playwright/test';
-import { UserApi } from '../api/user.api';
-import { LoginApi } from '../api/login.api';
-import { generateUserData } from '../utils/user-factory';
-import { User } from '../interfaces/interfaces';
+import { userTest } from './user.fixtures';
 import { LoginPage } from '../pages/login.page';
 import { HomePage } from '../pages/home.page';
-import { ProductsApi } from '../api/products.api';
-import { BrandsApi } from '../api/brands.api';
 import { ProductPage } from '../pages/products.page';
 import { SignupPage } from '../pages/signup.page';
+import { CartPage } from '../pages/cart.page';
+import { User, Product } from '../interfaces/interfaces';
+import { DataHelper } from '../utils/data-helper';
 
 type MyObjects = {
-  userApi: UserApi;
-  loginApi: LoginApi;
-  productsApi: ProductsApi;
-  brandsApi: BrandsApi;
-  persistentUser: User;
-  preCreatedUser: User;
-  preCreatedFullUser: User;
-  userData: User;
-  userDataFull: User;
   loginReadyPage: LoginPage;
   loginPage: LoginPage;
   homePage: HomePage;
   productPage: ProductPage;
-  productPageReady: ProductPage;
   signupReadyPage: {
     signupPage: SignupPage;
     user: User;
   };
+  productPageReady: ProductPage;
+  cartPage: CartPage;
+  cartPageReadey: {
+    cartPage: CartPage,
+    productDetails: Product
+  };
 }
 
-export const test = base.extend<MyObjects>({
-
-  userApi: async ({ request }, use) => {
-    await use(new UserApi(request));
-  },
-
-  loginApi: async ({ request }, use) => {
-    await use(new LoginApi(request));
-  },
-
-  productsApi: async ({ request }, use) => {
-    await use(new ProductsApi(request));
-  },
-
-  brandsApi: async ({ request }, use) => {
-    await use(new BrandsApi(request));
-  },
-  persistentUser: async ({ userApi }, use) => {
-    const userData: User = generateUserData();
-    await userApi.createAccount(userData);
-    await use(userData);
-  },
-
-  preCreatedUser: async ({ userApi }, use) => {
-    const userData: User = generateUserData();
-    await userApi.createAccount(userData);
-    await use(userData);
-    // --- TEARDOWN ---
-    await userApi.deleteAccount({
-      email: userData.email,
-      password: userData.password
-    });
-  },
-  preCreatedFullUser: async ({ userApi }, use) => {
-    const userData: User = generateUserData(true);
-    await userApi.createAccount(userData);
-    await use(userData);
-    // --- TEARDOWN ---
-    await userApi.deleteAccount({
-      email: userData.email,
-      password: userData.password
-    });
-  },
-
-  userData: async ({ }, use) => {
-    const userData: User = generateUserData();
-    await use(userData);
-  },
-  userDataFull: async ({ }, use) => {
-    const userData: User = generateUserData(true);
-    await use(userData);
-  },
-
+export const test = userTest.extend<MyObjects>({
   loginPage: async ({ page }, use) => {
     await use(new LoginPage(page));
   },
@@ -95,11 +36,13 @@ export const test = base.extend<MyObjects>({
   },
 
   homePage: async ({ page }, use) => {
-    await use(new HomePage(page));
+    const homePage = new HomePage(page);
+    await homePage.navigate();
+    await use(homePage);
   },
 
-  signupReadyPage: async ({ loginReadyPage, userApi, page }, use) => {
-    const user = generateUserData(true);
+  signupReadyPage: async ({ loginReadyPage, userApi, page, userDataFull }, use) => {
+    const user = userDataFull;
     await loginReadyPage.signup(user.name, user.email);
     const signupPage = new SignupPage(page);
 
@@ -118,9 +61,23 @@ export const test = base.extend<MyObjects>({
 
   productPageReady: async ({ page }, use) => {
     const productPage = new ProductPage(page);
-    productPage.navigate();
+    await productPage.navigate();
     await use(productPage);
   },
+  cartPage: async ({ page }, use) => {
+    const cartPage = new CartPage(page);
+    await cartPage.navigate();
+    await use(cartPage);
+  },
+
+  cartPageReadey: async ({ page }, use) => {
+    const homePage = new HomePage(page);
+    await homePage.navigate();
+    await page.context().clearCookies();
+    const productDetails = DataHelper.getExpectedProduct();
+    const cartPage = await homePage.addProductAndViewCart(productDetails);
+    await use({ cartPage, productDetails });
+  }
 
 });
 
