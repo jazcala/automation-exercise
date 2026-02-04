@@ -4,7 +4,8 @@ import { HomePage } from '../pages/home.page';
 import { ProductPage } from '../pages/products.page';
 import { SignupPage } from '../pages/signup.page';
 import { CartPage } from '../pages/cart.page';
-import { User } from '../interfaces/interfaces';
+import { User, Product } from '../interfaces/interfaces';
+import { DataHelper } from '../utils/data-helper';
 
 type MyObjects = {
   loginReadyPage: LoginPage;
@@ -16,7 +17,11 @@ type MyObjects = {
     user: User;
   };
   productPageReady: ProductPage;
-  cartPageReadey: CartPage;
+  cartPage: CartPage;
+  cartPageReadey: {
+    cartPage: CartPage,
+    productDetails: Product
+  };
 }
 
 export const test = userTest.extend<MyObjects>({
@@ -56,9 +61,23 @@ export const test = userTest.extend<MyObjects>({
 
   productPageReady: async ({ page }, use) => {
     const productPage = new ProductPage(page);
-    productPage.navigate();
+    await productPage.navigate();
     await use(productPage);
   },
+  cartPage: async ({ page }, use) => {
+    const cartPage = new CartPage(page);
+    await cartPage.navigate();
+    await use(cartPage);
+  },
+
+  cartPageReadey: async ({ page }, use) => {
+    const homePage = new HomePage(page);
+    await homePage.navigate();
+    await page.context().clearCookies();
+    const productDetails = DataHelper.getExpectedProduct();
+    const cartPage = await homePage.addProductAndViewCart(productDetails);
+    await use({ cartPage, productDetails });
+  }
 
 });
 

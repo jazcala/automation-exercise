@@ -29,7 +29,7 @@ test.describe('homepage test - logged in user', () => {
       await homePage.addFirstProductToCart();
       await expect(homePage.addedModal).toBeVisible();
       await expect(homePage.addedModalViewCartLink).toBeVisible();
-      const cartPage = await homePage.viewCart();
+      const cartPage = await homePage.viewCartFromAddedModal();
       await expect(cartPage.page).toHaveURL('view_cart');
     });
 
@@ -38,7 +38,7 @@ test.describe('homepage test - logged in user', () => {
       await homePage.addFirstProductToCart();
       await expect(homePage.addedModal).toBeVisible();
       await expect(homePage.addedModalContinueShoppingButton).toBeVisible();
-      await homePage.continueShopping();
+      await homePage.continueShoppingFromAddedModal();
       await expect(homePage.addedModal).toBeHidden();
 
     });

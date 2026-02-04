@@ -6,7 +6,9 @@ export abstract class BasePage {
   readonly page: Page;
 
   // --- Navbar ---
+  readonly header: Locator;
   readonly homeLink: Locator;
+  readonly cartLink: Locator;
   readonly singupLoginLink: Locator;
   readonly loggedAsLink: Locator;
   readonly logoutLink: Locator;
@@ -18,7 +20,9 @@ export abstract class BasePage {
     this.page = page;
 
     // ---Navbar ---
-    this.homeLink = page.getByRole('link', { name: 'Home' });
+    this.header = page.locator('#header');
+    this.homeLink = this.header.getByRole('link', { name: 'Home' });
+    this.cartLink = this.header.getByRole('link', { name: 'Cart' });
     this.singupLoginLink = page.getByRole('link', { name: ' Signup / Login' });
     this.loggedAsLink = page.getByText(/Logged in as .*/);
     this.logoutLink = page.getByRole('link', { name: 'Logout' });
@@ -32,6 +36,7 @@ export abstract class BasePage {
     await this.page.goto(this.path);
     await this.page.waitForURL(`**${this.path}`);
     await this.homeLink.waitFor({ state: 'visible' });
+
   }
 
   async logout(): Promise<void> {

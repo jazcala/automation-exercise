@@ -1,6 +1,7 @@
 import { Page, Locator } from '@playwright/test';
 import { BasePage } from './base.page';
 import { CartPage } from './cart.page';
+import { Product } from '../interfaces/interfaces';
 
 export class HomePage extends BasePage {
 
@@ -8,20 +9,22 @@ export class HomePage extends BasePage {
   readonly recommendedItemCarousel: Locator;
   readonly firstProductAddToCartButton: Locator;
 
+  readonly firstProductCard: Locator;
+  readonly productCardList: Locator;
   // --- Added Modal
   readonly addedModal: Locator;
   readonly addedModalTitle: Locator;
   readonly addedModalText: Locator;
   readonly addedModalViewCartLink: Locator;
   readonly addedModalContinueShoppingButton: Locator;
-  readonly firstProductCard: Locator;
 
   constructor(page: Page) {
 
     super(page);
     this.mainCarouselSlider = page.locator('#slider-carousel');
     this.recommendedItemCarousel = page.locator('#recommended-item-carousel');
-    this.firstProductCard = page.locator('.single-products').first();
+    this.productCardList = page.locator('.features_items .single-products');
+    this.firstProductCard = this.productCardList.first();
     this.firstProductAddToCartButton = page.locator('.overlay-content .add-to-cart').first();
 
     // --- Added Modal
@@ -37,6 +40,26 @@ export class HomePage extends BasePage {
     await this.firstProductCard.scrollIntoViewIfNeeded();
     await this.firstProductCard.hover();
     await this.firstProductAddToCartButton.click();
+  }
+
+  private getProductContainer(name: string): Locator {
+    return this.productCardList.filter({
+      has: this.page.locator('.productinfo p').filter({ hasText: name })
+    });
+  }
+
+  async addProductAndViewCart(productInfo: Product): Promise<CartPage> {
+    const container = this.getProductContainer(productInfo.name);
+    await container.scrollIntoViewIfNeeded();
+    await container.hover();
+
+    await container.scrollIntoViewIfNeeded();
+    await container.hover();
+
+    await container.locator('.overlay-content .add-to-cart').click();
+    await this.addedModal.waitFor({ state: 'visible' });
+
+    return await this.viewCartFromAddedModal();
 
   }
 
@@ -45,14 +68,14 @@ export class HomePage extends BasePage {
    *  It's displayed after a product is added to cart.
    */
 
-  async viewCart(): Promise<CartPage> {
+  async viewCartFromAddedModal(): Promise<CartPage> {
 
     await this.addedModalViewCartLink.click();
 
     return new CartPage(this.page);
   }
 
-  async continueShopping(): Promise<void> {
+  async continueShoppingFromAddedModal(): Promise<void> {
 
     await this.addedModalContinueShoppingButton.click();
 
