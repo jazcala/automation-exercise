@@ -44,5 +44,8 @@
       "eslint --fix",
       "npm run type-check"
     ]
+  },
+  "dependencies": {
+    "openai": "^6.18.0"
   }
 }

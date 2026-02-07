@@ -55,6 +55,7 @@ export default defineConfig({
       dependencies: ['setup'],
       use: { ...devices['Desktop Safari'], storageState: LOGGED_IN_STATE },
     },
+    // --- VISUAL REGRESSION TESTS (Chromium - guest user) ---
     {
       name: 'visual-regression',
       testMatch: /tests\/visual\/.*\.spec\.ts/,
@@ -63,6 +64,15 @@ export default defineConfig({
         storageState: { cookies: [], origins: [] }, //as guest
       },
       grep: /@visual/,
+    },
+    // --- AI DEMO TESTS ---
+    {
+      name: 'ai-demo',
+      testMatch: /tests\/ai-demo\/.*\.spec\.ts/, // Matches your new folder
+      use: {
+        ...devices['Desktop Chrome'],
+        storageState: GUEST_STATE // AI tests usually run as guest first
+      },
     },
   ],
 });
