@@ -20,18 +20,24 @@ export async function askLocalAI(htmlSnippet: string, goal: string): Promise<str
     messages: [
       {
         role: 'system',
-        content: `You are a specialized Playwright selector generator.
-                  CRITICAL RULES:
-                  1. Priority 1: Use simple attribute selectors: a[href="/path"]
-                  2. Priority 2: Use text content: a:has-text("Text")
-                  3. NEVER return multiple classes with spaces (e.g., use .nav.navbar-nav, NOT .nav navbar-nav).
-                  4. AVOID long CSS paths. Keep it short.
-                  5. Return ONLY the selector string.`
+        content: `You are a robotic Playwright selector generator.
+                RULES:
+                1. Return ONLY the selector string.
+                2. No conversational text, no explanations, no periods.
+                3. Priority: ID > Attribute [href/data-qa] > Text :has-text().`
+      },
+      {
+        role: 'user',
+        content: 'Goal: Find "Contact Us". Snippet: <a href="/contact">Contact Us</a>'
+      },
+      {
+        role: 'assistant',
+        content: 'a[href="/contact"]'
       },
       {
         role: 'user',
         content: `Goal: Find the selector for "${goal}".
-                  HTML Snippet: ${htmlSnippet.replace(/\s+/g, ' ').substring(0, 2000)}`
+                HTML Snippet: ${htmlSnippet.replace(/\s+/g, ' ').substring(0, 2000)}`
       },
     ],
   });
@@ -39,7 +45,9 @@ export async function askLocalAI(htmlSnippet: string, goal: string): Promise<str
   let content = response.choices[0].message.content?.trim() || '';
 
   // --- SANITIZATION LOGIC ---
-
+  if (content.match(/^(based on|i recommend|the selector|here is)/i)) {
+    content = content.replace(/^.*?:/s, '').trim();
+  }
   // 1. Remove markdown code blocks
   const codeBlockMatch = content.match(/```(?:css|selector|)?\s*([\s\S]*?)```/);
   if (codeBlockMatch) {

@@ -1,6 +1,6 @@
 # 🛒 Automation Exercise: Full-Stack QA Framework
 
-A Playwright-driven suite featuring **API Orchestration**, **UI Automation**, and **CI/CD integration**.
+A Playwright-driven suite featuring **AI-Powered Self-Healing*** **API Orchestration**, **UI Automation**, and **CI/CD integration**.
 
 ---
 
@@ -10,14 +10,24 @@ This framework is designed to provide a robust, scalable, and maintainable autom
 
 ### 🏗️ Architecture Highlights
 
+* **🤖 AI-Powered Self-Healing:** Integrated an **AI Bridge** that uses a local **Ollama** instance (Llama 3.2) to dynamically suggest and "heal" broken locators at runtime based on the DOM context.
 * **Parallelization & Sharding:** UI tests are sharded across multiple GitHub Action runners to minimize execution time.
 * **Page Object Model (POM):** Applied to both UI components and API endpoints to centralize logic and reduce maintenance.
-* **Shared Type System:** A centralized `interfaces.ts` file serves as the "Source of Truth," ensuring that the data contracts for both API and UI tests remain synchronized.
 * **Unified Reporting:** Custom GitHub Actions workflow that merges API and UI results into a single, comprehensive HTML dashboard hosted on **GitHub Pages**.
 
 ---
 
 ## 🧪 Testing Strategy
+
+### 🤖 AI Self-Healing Engine (Local-Development)
+
+This framework includes a "Pro" feature for local development: an experimental **AI-driven self-healing mechanism**. Using **Ollama** (Llama 3.2), the framework can:
+
+* **Dynamic Recovery:** Detect broken CSS selectors during execution.
+* **LLM Inference:** Send HTML snippets to the local AI to suggest a "healed" selector based on original intent.
+* **Developer Workflow:** These tests are tagged with `@ai-healing`. They are designed to be run locally by developers to identify and fix brittle locators before committing code.
+
+> **Note:** These tests are excluded from CI and the standard Docker build to maintain fast execution speeds and avoid infrastructure bottlenecks.
 
 ### 📡 API Layer
 
@@ -51,7 +61,10 @@ This framework is designed to provide a robust, scalable, and maintainable autom
    ```bash
    npx playwright test --project=api-tests  # API Only
    npx playwright test --project=chromium # UI Only
+   npx playwright test --grep @ai-healing # AI-healing
    ```
+
+> Note: For ai-healing  **Start Ollama** (Ensure you have Ollama installed and `llama3.2` pulled).
 
 ### **🐳 Running with Docker**
 
@@ -66,7 +79,7 @@ To ensure a consistent environment and avoid "it works on my machine" issues, yo
 1. Run Tests in Container
 
    ```bash
-   docker run --rm -v $(pwd):/work/ playwright-automation npx playwright test
+   docker run --rm -v $(pwd):/work/ playwright-automation npx playwright test --grep-invert @ai-healing
    ```
 
 ## **📊 Reports**

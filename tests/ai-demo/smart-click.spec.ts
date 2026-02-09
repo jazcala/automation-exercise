@@ -1,11 +1,14 @@
 import { test, expect } from '../../src/fixtures/base-fixture';
 
-test('should heal using Fixture and HomePage', async ({ homePage, page }) => {
+test.describe('AI Smart Click Demo @ai-healing', () => {
 
-  await expect(homePage.singupLoginLink).toBeVisible();
+  test('should heal using Fixture and HomePage', async ({ homePage, page }) => {
 
-  await homePage.clickContactUs('a[href="/broken-and-wrong"]');
+    await expect(homePage.singupLoginLink).toBeVisible();
 
-  await expect(page).toHaveURL(/contact_us/);
+    await homePage.clickContactUs('a[href="/broken-and-wrong"]');
 
+    await expect(page).toHaveURL(/contact_us/);
+
+  });
 });

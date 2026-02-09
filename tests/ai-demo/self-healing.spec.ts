@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { logHealing, getHealedLocatorOrThrow } from '../../src/ai-engine/ai-bridge';
 
-test.describe('AI Self-Healing Demo', () => {
+test.describe('AI Self-Healing Demo @ai-healing', () => {
 
   test('should recover from a broken "Contact Us" locator', async ({ page }) => {
     await page.goto('https://automationexercise.com/');

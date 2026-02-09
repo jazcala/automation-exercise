@@ -48,6 +48,10 @@ export abstract class BasePage {
     await this.smartClick(selector, 'The Contact Us link in the top menu');
   }
 
+  // async logout(): Promise<void> {
+  //   await this.smartClick(this.logoutLink, 'The Logout link in the top menu');
+  // }
+
   async logout(): Promise<void> {
     await this.smartClick(this.logoutLink, 'The Logout link in the top menu');
   }
