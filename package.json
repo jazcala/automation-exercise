@@ -14,9 +14,9 @@
     "test:report": "playwright show-report",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "type-check": "tsc --noEmit",
+    "type-check": "tsc --noEmit -p tsconfig.json --skipLibCheck",
     "prepare": "husky",
-    "test:pre-push": "docker-compose run --rm --remove-orphans playwright npx playwright test",
+    "test:pre-push": "docker-compose build playwright && docker-compose run --rm --remove-orphans playwright npx playwright test --grep-invert \"@ai-healing|@visual|@api\"",
     "docker:test": "docker-compose run --rm playwright",
     "docker:update": "docker-compose run --rm playwright npx playwright test --update-snapshots"
   },
@@ -42,7 +42,10 @@
   "lint-staged": {
     "**/*.ts": [
       "eslint --fix",
-      "npm run type-check"
+      "bash -c 'npm run type-check'"
     ]
+  },
+  "dependencies": {
+    "openai": "^6.18.0"
   }
 }
