@@ -66,6 +66,67 @@ This framework includes a "Pro" feature for local development: an experimental *
 
 > Note: For ai-healing  **Start Ollama** (Ensure you have Ollama installed and `llama3.2` pulled).
 
+### ⚙️ Configuration & Environment Variables
+
+The framework can be configured via environment variables to better model real-world environments:
+
+* **`PLAYWRIGHT_BASE_URL`**: Base URL for all UI and API tests.
+  * Default: `https://automationexercise.com`
+  * Used in `playwright.config.ts` via `appConfig.baseUrl`.
+
+* **`AI_ENABLED`**: Gate for AI self-healing behaviour.
+  * Default: `true` (set to `'false'` to consider AI disabled in your own code paths).
+
+* **`AI_BASE_URL`**: Base URL for the AI / LLM endpoint.
+  * Default: `http://localhost:11434/v1` (local Ollama).
+
+* **`AI_API_KEY`**: API key used by the AI client.
+  * Default: `ollama` (placeholder used for local Ollama setups that do not enforce authentication).
+
+* **`AI_MODEL`**: Model name used when calling the AI engine.
+  * Default: `llama3.2:3b`.
+
+All of these variables are wired through `src/config.ts` and consumed by both `playwright.config.ts` and `src/ai-engine/ai-bridge.ts`, so you can easily point the same test suite at different environments without changing code.
+
+#### Local environment
+
+* Copy the sample file: `cp .env.sample .env`
+* (Optional) Adjust the values if you want to point at a different base URL or AI endpoint.
+* Load the variables before running tests, for example:
+  * Export via your shell: `export $(grep -v '^#' .env | xargs) && npx playwright test`
+  * Or use a helper like `dotenv-cli` / `env-cmd` if you prefer.
+
+#### CI environment (e.g., GitHub Actions)
+
+In CI, set the same variables as environment variables or secrets:
+
+* `PLAYWRIGHT_BASE_URL`
+* `AI_ENABLED`
+* `AI_BASE_URL`
+* `AI_API_KEY`
+* `AI_MODEL`
+
+For GitHub Actions, a common pattern is:
+
+1. Define repository or environment secrets:
+   * `PLAYWRIGHT_BASE_URL`
+   * `AI_ENABLED`
+   * `AI_BASE_URL`
+   * `AI_API_KEY`
+   * `AI_MODEL`
+2. Map them into your workflow jobs using `env:`. For example:
+
+```yaml
+env:
+  PLAYWRIGHT_BASE_URL: ${{ secrets.PLAYWRIGHT_BASE_URL }}
+  AI_ENABLED: ${{ secrets.AI_ENABLED }}
+  AI_BASE_URL: ${{ secrets.AI_BASE_URL }}
+  AI_API_KEY: ${{ secrets.AI_API_KEY }}
+  AI_MODEL: ${{ secrets.AI_MODEL }}
+```
+
+You can place this `env` block at the `jobs.api-tests`, `jobs.ui-tests`, and/or `jobs.merge-reports` levels in `.github/workflows/playwright.yml` depending on which suites you want to configure.
+
 ### **🐳 Running with Docker**
 
 To ensure a consistent environment and avoid "it works on my machine" issues, you can run the suite using the official Playwright Docker image:

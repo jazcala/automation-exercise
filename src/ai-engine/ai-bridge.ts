@@ -1,13 +1,14 @@
 import OpenAI from 'openai';
 import * as fs from 'fs';
 import * as path from 'path';
+import { appConfig } from '../config';
 
 /**
  * Setup the connection to Local Ollama
  */
 const ollama = new OpenAI({
-  baseURL: 'http://localhost:11434/v1',
-  apiKey: 'ollama',
+  baseURL: appConfig.ai.baseUrl,
+  apiKey: appConfig.ai.apiKey,
 });
 
 /**
@@ -15,7 +16,7 @@ const ollama = new OpenAI({
  */
 export async function askLocalAI(htmlSnippet: string, goal: string): Promise<string> {
   const response = await ollama.chat.completions.create({
-    model: 'llama3.2:3b',
+    model: appConfig.ai.model,
     temperature: 0.1,
     messages: [
       {

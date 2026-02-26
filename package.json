@@ -37,7 +37,8 @@
     "eslint-plugin-playwright": "^2.5.0",
     "husky": "^9.1.7",
     "lint-staged": "^16.2.7",
-    "prettier": "^3.7.4"
+    "prettier": "^3.7.4",
+    "dotenv": "^16.4.7"
   },
   "lint-staged": {
     "**/*.ts": [
