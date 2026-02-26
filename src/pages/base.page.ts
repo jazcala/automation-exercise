@@ -10,7 +10,7 @@ export abstract class BasePage {
   readonly header: Locator;
   readonly homeLink: Locator;
   readonly cartLink: Locator;
-  readonly singupLoginLink: Locator;
+  readonly signupLoginLink: Locator;
   readonly loggedAsLink: Locator;
   readonly logoutLink: Locator;
   readonly deleteAccountLink: Locator;
@@ -25,7 +25,7 @@ export abstract class BasePage {
     this.header = page.locator('#header');
     this.homeLink = this.header.getByRole('link', { name: 'Home' });
     this.cartLink = this.header.getByRole('link', { name: 'Cart' });
-    this.singupLoginLink = page.getByRole('link', { name: ' Signup / Login' });
+    this.signupLoginLink = page.getByRole('link', { name: ' Signup / Login' });
     this.loggedAsLink = page.getByText(/Logged in as .*/);
     this.logoutLink = page.getByRole('link', { name: 'Logout' });
     this.deleteAccountLink = page.getByRole('link', { name: 'Delete Account' });

@@ -18,7 +18,7 @@ type MyObjects = {
   };
   productPageReady: ProductPage;
   cartPage: CartPage;
-  cartPageReadey: {
+  cartPageReady: {
     cartPage: CartPage,
     productDetails: Product
   };
@@ -70,7 +70,7 @@ export const test = userTest.extend<MyObjects>({
     await use(cartPage);
   },
 
-  cartPageReadey: async ({ page }, use) => {
+  cartPageReady: async ({ page }, use) => {
     const homePage = new HomePage(page);
     await homePage.navigate();
     await page.context().clearCookies();

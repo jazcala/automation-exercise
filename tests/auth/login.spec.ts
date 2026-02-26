@@ -38,7 +38,7 @@ test.describe('Login', () => {
     await expect(homePage.logoutLink).toBeVisible();
     await homePage.logout();
     await expect(homePage.logoutLink).toBeHidden();
-    await expect(homePage.singupLoginLink).toBeVisible();
+    await expect(homePage.signupLoginLink).toBeVisible();
 
   });
 

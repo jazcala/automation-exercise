@@ -15,9 +15,9 @@ test.describe('cart page tests - guest user', () => {
 
     });
 
-    test('verify table headers', async ({ cartPageReadey }) => {
+    test('verify table headers', async ({ cartPageReady }) => {
 
-      const { cartPage } = cartPageReadey;
+      const { cartPage } = cartPageReady;
       const expectedHeaders = DataHelper.getExpectedCartTableHeaders();
 
       expect(await cartPage.getTableHeaders()).toEqual(expectedHeaders);
@@ -25,9 +25,9 @@ test.describe('cart page tests - guest user', () => {
 
   });
 
-  test('verify product details in cart table', async ({ cartPageReadey }) => {
+  test('verify product details in cart table', async ({ cartPageReady }) => {
 
-    const { cartPage, productDetails } = cartPageReadey;
+    const { cartPage, productDetails } = cartPageReady;
     const actualData = await cartPage.getProductDataFromRow(productDetails.name);
 
     expect.soft(actualData.description).toContain(productDetails.name);
@@ -36,9 +36,9 @@ test.describe('cart page tests - guest user', () => {
     expect.soft(actualData.total).toContain('Rs. 1500');
   });
 
-  test('remove product from cart', async ({ cartPageReadey }) => {
+  test('remove product from cart', async ({ cartPageReady }) => {
 
-    const { cartPage, productDetails } = cartPageReadey;
+    const { cartPage, productDetails } = cartPageReady;
 
     await cartPage.removeItemFromCart(productDetails.name);
     await expect(cartPage.emptyCartMessage).toBeVisible();
@@ -49,9 +49,9 @@ test.describe('cart page tests - guest user', () => {
 
   test.describe('proceed to checkout modal - guest user', () => {
 
-    test('verify modal elements', async ({ cartPageReadey }) => {
+    test('verify modal elements', async ({ cartPageReady }) => {
 
-      const { cartPage } = cartPageReadey;
+      const { cartPage } = cartPageReady;
       await cartPage.proceedToCheckoutAsGuest();
 
       await expect(cartPage.checkoutModal).toBeVisible();
@@ -63,9 +63,9 @@ test.describe('cart page tests - guest user', () => {
 
     });
 
-    test('continue on cart from modal', async ({ cartPageReadey }) => {
+    test('continue on cart from modal', async ({ cartPageReady }) => {
 
-      const { cartPage } = cartPageReadey;
+      const { cartPage } = cartPageReady;
       await cartPage.proceedToCheckoutAsGuest();
       await cartPage.checkoutModalContinueOnCartButton.click();
       await expect(cartPage.page).toHaveURL(/view_cart/);
@@ -73,9 +73,9 @@ test.describe('cart page tests - guest user', () => {
 
     });
 
-    test('go to signup/login from modal', async ({ cartPageReadey }) => {
+    test('go to signup/login from modal', async ({ cartPageReady }) => {
 
-      const { cartPage } = cartPageReadey;
+      const { cartPage } = cartPageReady;
       await cartPage.proceedToCheckoutAsGuest();
       await cartPage.checkoutModalSignupLoginLink.click();
       await expect(cartPage.page).toHaveURL(/login/);
@@ -84,10 +84,10 @@ test.describe('cart page tests - guest user', () => {
 
   });
 
-  test('go to home page and add another product - verify product list in cart - and total calculation', async ({ cartPageReadey
+  test('go to home page and add another product - verify product list in cart - and total calculation', async ({ cartPageReady
 
   }) => {
-    const { cartPage, productDetails } = cartPageReadey;
+    const { cartPage, productDetails } = cartPageReady;
     const homePage = await cartPage.navigaToHomeViaBreadcrum();
 
     await expect(homePage.page).toHaveURL('/');

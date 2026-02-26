@@ -4,7 +4,7 @@ test.describe('AI Smart Click Demo @ai-healing', () => {
 
   test('should heal using Fixture and HomePage', async ({ homePage, page }) => {
 
-    await expect(homePage.singupLoginLink).toBeVisible();
+    await expect(homePage.signupLoginLink).toBeVisible();
 
     await homePage.clickContactUs('a[href="/broken-and-wrong"]');
 
