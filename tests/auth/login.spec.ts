@@ -16,7 +16,7 @@ test.describe('Login', () => {
 
   });
 
-  test('Login User with correct email and password', async ({
+  test('Login user with correct email and password @smoke', async ({
     loginReadyPage, preCreatedUser }) => {
     const { email, password, name } = preCreatedUser;
     const homePage = await loginReadyPage.login(email, password);

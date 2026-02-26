@@ -40,6 +40,15 @@ This framework includes a "Pro" feature for local development: an experimental *
 * **State Management:** (In Progress) Implementing `storageState` to share authentication across test shards, bypassing redundant login steps.
 * **Cross-Browser Testing:** Configured to run across Chromium, Firefox, and Webkit via Playwright’s engine.
 
+### 🏷️ Test Suites & Tags
+
+This repo uses Playwright title tags (e.g., `@smoke`) so you can select suites via `--grep`:
+
+* **`@smoke`**: Small critical-path checks for fast feedback (used by `npm run test:smoke`).
+* **`@api`**: API-focused specs (also selectable via `--project=api-tests`).
+* **`@visual`**: Visual regression specs (used by `--project=visual-regression` and `--grep @visual`).
+* **`@ai-healing`**: Local-only AI self-healing demos (excluded from CI by default).
+
 ---
 
 ## 🚀 How to Run

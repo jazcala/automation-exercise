@@ -4,7 +4,7 @@ import { test, expect } from '../../src/fixtures/base-fixture';
 
 test.describe('User Account API Lifecycle @api', () => {
 
-  test('POST - create user with required fields', async ({ userApi }) => {
+  test('POST - create user with required fields @smoke', async ({ userApi }) => {
     // *  Test 1: Create User (POST) -> Verify success.÷
     const testUser: User = generateUserData();
     const response = await userApi.createAccount(testUser);

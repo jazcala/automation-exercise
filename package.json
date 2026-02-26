@@ -6,7 +6,7 @@
   "scripts": {
     "test": "playwright test",
     "test:api": "playwright test --project=api-tests",
-    "test:logged": "playwright test --project=chromium-logged",
+    "test:logged": "playwright test --project=chromium-logged-in",
     "test:guest": "playwright test --project=chromium-guest",
     "test:visual": "playwright test --project=visual-regression",
     "test:smoke": "playwright test --grep @smoke",
@@ -37,8 +37,7 @@
     "eslint-plugin-playwright": "^2.5.0",
     "husky": "^9.1.7",
     "lint-staged": "^16.2.7",
-    "prettier": "^3.7.4",
-    "dotenv": "^16.4.7"
+    "prettier": "^3.7.4"
   },
   "lint-staged": {
     "**/*.ts": [
