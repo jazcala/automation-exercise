@@ -10,4 +10,9 @@ test.describe('homepage test - guest user', () => {
 
   });
 
+  test('example: temporarily flaky test - run with npm run test:flaky @flaky', async ({ homePage }) => {
+    test.skip(true, 'Example: tag with @flaky and run test:flaky to isolate');
+    await expect(homePage.signupLoginLink).toBeVisible();
+  });
+
 });

@@ -49,6 +49,26 @@ This repo uses Playwright title tags (e.g., `@smoke`) so you can select suites v
 * **`@visual`**: Visual regression specs (used by `--project=visual-regression` and `--grep @visual`).
 * **`@ai-healing`**: Local-only AI self-healing demos (excluded from CI by default).
 * **`@e2e`**: End-to-end flows (e.g. full place-order journey).
+* **`@flaky`**: Temporarily flaky tests; run in isolation with `npm run test:flaky` to debug or triage.
+
+### Flakiness Mitigation
+
+The framework reduces flakiness in several ways:
+
+* **Retries and diagnostics:** In [playwright.config.ts](playwright.config.ts), CI runs use `retries: 2`, `trace: 'on-first-retry'`, and `screenshot: 'only-on-failure'` so failures produce traces and screenshots for debugging.
+* **Visual stability:** Visual regression tests in [tests/visual](tests/visual) use [src/utils/test-utils.ts](src/utils/test-utils.ts): **`TestUtils.blockAds`** (network blocking and CSS hiding of ad slots) and **`TestUtils.prepareForScreenshot`** (font normalization, animations disabled, scrollbar hidden, full-page scroll before capture). Call both before `toHaveScreenshot()` so snapshots are stable across runs.
+* **Managing flaky tests:** Tests that are temporarily flaky can be tagged with `@flaky` in the title. Run only those with `npm run test:flaky` to isolate and fix them without blocking the main suite.
+
+### Visual testing
+
+Visual specs in [tests/visual](tests/visual) follow a consistent pattern: **block ads** and **prepare for screenshot** via `TestUtils`, then capture. Example:
+
+1. `await TestUtils.blockAds(page);`
+2. Navigate and wait for the content you need.
+3. `await TestUtils.prepareForScreenshot(page);`
+4. `await expect(page).toHaveScreenshot(...);`
+
+See [tests/visual/home.visual.spec.ts](tests/visual/home.visual.spec.ts) and [tests/visual/login.visual.spec.ts](tests/visual/login.visual.spec.ts).
 
 ### Representative E2E Scenario
 
