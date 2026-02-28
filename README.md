@@ -48,6 +48,16 @@ This repo uses Playwright title tags (e.g., `@smoke`) so you can select suites v
 * **`@api`**: API-focused specs (also selectable via `--project=api-tests`).
 * **`@visual`**: Visual regression specs (used by `--project=visual-regression` and `--grep @visual`).
 * **`@ai-healing`**: Local-only AI self-healing demos (excluded from CI by default).
+* **`@e2e`**: End-to-end flows (e.g. full place-order journey).
+
+### Representative E2E Scenario
+
+The **place-order (logged-in)** flow demonstrates a full checkout journey:
+
+* **Spec:** `tests/e2e/place-order.logged.spec.ts`
+* **Flow:** Logged-in user adds a product to cart, reviews cart, proceeds to checkout, completes payment with test card data, and asserts on the order success message.
+* **Fixtures:** Uses `homePage`, cart from “View Cart” modal, `CheckoutPage`, and `PaymentPage` (see `src/pages/checkout.page.ts`, `src/pages/payment.page.ts`).
+* **Run:** Included in the logged-in projects (e.g. `npx playwright test tests/e2e/place-order.logged.spec.ts` or `npm run test:logged` with the e2e file matching the project).
 
 ---
 

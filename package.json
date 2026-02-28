@@ -10,6 +10,7 @@
     "test:guest": "playwright test --project=chromium-guest",
     "test:visual": "playwright test --project=visual-regression",
     "test:smoke": "playwright test --grep @smoke",
+    "test:e2e": "playwright test --grep @e2e",
     "test:ui": "playwright test --ui",
     "test:report": "playwright show-report",
     "lint": "eslint .",
