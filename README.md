@@ -15,6 +15,40 @@ This framework is designed to provide a robust, scalable, and maintainable autom
 * **Page Object Model (POM):** Applied to both UI components and API endpoints to centralize logic and reduce maintenance.
 * **Unified Reporting:** Custom GitHub Actions workflow that merges API and UI results into a single, comprehensive HTML dashboard hosted on **GitHub Pages**.
 
+### 📁 Folder Map
+
+Key directories and their roles:
+
+```mermaid
+flowchart TD
+  entry[Start Here] --> readme[README.md]
+  readme --> testsDir[tests]
+  readme --> srcDir[src]
+  srcDir --> pagesDir[src/pages]
+  srcDir --> apiDir[src/api]
+  srcDir --> fixturesDir[src/fixtures]
+  srcDir --> utilsDir[src/utils]
+  srcDir --> aiDir[src/ai-engine]
+  testsDir --> authDir[tests/auth]
+  testsDir --> apiTests[tests/api]
+  testsDir --> e2eTests[tests/e2e]
+  testsDir --> visualTests[tests/visual]
+  testsDir --> aiTests[tests/ai-demo]
+```
+
+* **`src/pages`** – Page Object Model for UI (Home, Login, Cart, Checkout, Payment, etc.).
+* **`src/api`** – API client wrappers for backend endpoints.
+* **`src/fixtures`** – Shared fixtures (base, user lifecycle, API).
+* **`src/utils`** – Helpers (data-helper, test-utils, user-factory).
+* **`src/ai-engine`** – AI bridge for self-healing locators.
+* **`tests/auth`** – Login and signup flows.
+* **`tests/api`** – API specs (user lifecycle, products, brands, login).
+* **`tests/e2e`** – End-to-end flows (e.g. place order).
+* **`tests/visual`** – Visual regression snapshots.
+* **`tests/ai-demo`** – AI self-healing demos.
+
+See [PLAN.md](PLAN.md) for a roadmap and design notes on evolving the framework.
+
 ---
 
 ## 🧪 Testing Strategy
@@ -83,14 +117,16 @@ Visual specs in [tests/visual](tests/visual) follow a consistent pattern: **bloc
 
 See [tests/visual/home.visual.spec.ts](tests/visual/home.visual.spec.ts) and [tests/visual/login.visual.spec.ts](tests/visual/login.visual.spec.ts).
 
-### Representative E2E Scenario
+### Representative Scenarios
 
-The **place-order (logged-in)** flow demonstrates a full checkout journey:
+Curated specs that show what the framework can do:
 
-* **Spec:** `tests/e2e/place-order.logged.spec.ts`
-* **Flow:** Logged-in user adds a product to cart, reviews cart, proceeds to checkout, completes payment with test card data, and asserts on the order success message.
+* **Auth:** [tests/auth/login.spec.ts](tests/auth/login.spec.ts), [tests/auth/signup.spec.ts](tests/auth/signup.spec.ts) – Login form validation, happy path, logout, signup with existing-email, and full user lifecycle.
+* **API:** [tests/api/user-lifecycle.api.spec.ts](tests/api/user-lifecycle.api.spec.ts) – Full user CRUD (create, get, update, delete) with schema validation and negative paths.
+* **Visual:** [tests/visual/home.visual.spec.ts](tests/visual/home.visual.spec.ts), [tests/visual/login.visual.spec.ts](tests/visual/login.visual.spec.ts) – Baseline snapshots with `TestUtils.blockAds` and `prepareForScreenshot` for stability.
+* **AI demo:** [tests/ai-demo/smart-click.spec.ts](tests/ai-demo/smart-click.spec.ts), [tests/ai-demo/self-healing.spec.ts](tests/ai-demo/self-healing.spec.ts) – Self-healing locators via `smartClick` and the AI bridge when a selector fails.
+* **E2E:** [tests/e2e/place-order.logged.spec.ts](tests/e2e/place-order.logged.spec.ts) – Full checkout: add product, cart, checkout, payment, and order success message.
 * **Fixtures:** Uses `homePage`, cart from “View Cart” modal, `CheckoutPage`, and `PaymentPage` (see `src/pages/checkout.page.ts`, `src/pages/payment.page.ts`).
-* **Run:** Included in the logged-in projects (e.g. `npx playwright test tests/e2e/place-order.logged.spec.ts` or `npm run test:logged` with the e2e file matching the project).
 
 ---
 
