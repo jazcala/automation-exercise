@@ -15,6 +15,40 @@ This framework is designed to provide a robust, scalable, and maintainable autom
 * **Page Object Model (POM):** Applied to both UI components and API endpoints to centralize logic and reduce maintenance.
 * **Unified Reporting:** Custom GitHub Actions workflow that merges API and UI results into a single, comprehensive HTML dashboard hosted on **GitHub Pages**.
 
+### 📁 Folder Map
+
+Key directories and their roles:
+
+```mermaid
+flowchart TD
+  entry[Start Here] --> readme[README.md]
+  readme --> testsDir[tests]
+  readme --> srcDir[src]
+  srcDir --> pagesDir[src/pages]
+  srcDir --> apiDir[src/api]
+  srcDir --> fixturesDir[src/fixtures]
+  srcDir --> utilsDir[src/utils]
+  srcDir --> aiDir[src/ai-engine]
+  testsDir --> authDir[tests/auth]
+  testsDir --> apiTests[tests/api]
+  testsDir --> e2eTests[tests/e2e]
+  testsDir --> visualTests[tests/visual]
+  testsDir --> aiTests[tests/ai-demo]
+```
+
+* **`src/pages`** – Page Object Model for UI (Home, Login, Cart, Checkout, Payment, etc.).
+* **`src/api`** – API client wrappers for backend endpoints.
+* **`src/fixtures`** – Shared fixtures (base, user lifecycle, API).
+* **`src/utils`** – Helpers (data-helper, test-utils, user-factory).
+* **`src/ai-engine`** – AI bridge for self-healing locators.
+* **`tests/auth`** – Login and signup flows.
+* **`tests/api`** – API specs (user lifecycle, products, brands, login).
+* **`tests/e2e`** – End-to-end flows (e.g. place order).
+* **`tests/visual`** – Visual regression snapshots.
+* **`tests/ai-demo`** – AI self-healing demos.
+
+See [PLAN.md](PLAN.md) for a roadmap and design notes on evolving the framework.
+
 ---
 
 ## 🧪 Testing Strategy
@@ -29,6 +63,19 @@ This framework includes a "Pro" feature for local development: an experimental *
 
 > **Note:** These tests are excluded from CI and the standard Docker build to maintain fast execution speeds and avoid infrastructure bottlenecks.
 
+#### AI Self-Healing: boundaries, failures, and observability
+
+* **Where it lives:** AI healing is used only in `@ai-healing` suites. Key files:
+  * [tests/ai-demo/self-healing.spec.ts](tests/ai-demo/self-healing.spec.ts) – direct use of the AI bridge and `logHealing`.
+  * [tests/ai-demo/smart-click.spec.ts](tests/ai-demo/smart-click.spec.ts) – healing via `HomePage.clickContactUs` and `smartClick`.
+  * [src/pages/base.page.ts](src/pages/base.page.ts) – `smartClick(selector, goal, meta?)` tries the locator, then calls the AI bridge on failure and logs the result.
+  * [src/ai-engine/ai-bridge.ts](src/ai-engine/ai-bridge.ts) – `askLocalAI` / `getHealedLocatorOrThrow` and `logHealing(original, fixed, goal, meta?)` with optional test name, decision, and model.
+* **When AI runs:** Only when a locator fails (e.g. click times out) inside a flow that uses `smartClick` or the bridge. Normal tests do not call the AI.
+* **Failure handling:** If the healed selector is invalid or click fails, the test fails with an error. If the LLM returns an unusable selector, `getHealedLocatorOrThrow` throws so the test fails with a clear message.
+* **Logs:** Every successful healing is appended to **`healing-report.log`** at the project root with: timestamp, test name (if provided), goal, original selector, healed selector, decision, and model. Inspect this file after running `npx playwright test --grep @ai-healing` locally to see what was healed.
+
+* **Note on infrastructure:** **`@ai-healing` tests are designed to run locally** where the Ollama model is hosted. If you run them without Ollama installed, you will see the connection error (e.g. `ECONNREFUSED` to `localhost:11434`), which makes it clear that Ollama is required.
+
 ### 📡 API Layer
 
 * **Schema Validation:** Uses TypeScript interfaces and `expect.any()` to verify response structures dynamically, preventing brittle tests.
@@ -39,6 +86,47 @@ This framework includes a "Pro" feature for local development: an experimental *
 
 * **State Management:** (In Progress) Implementing `storageState` to share authentication across test shards, bypassing redundant login steps.
 * **Cross-Browser Testing:** Configured to run across Chromium, Firefox, and Webkit via Playwright’s engine.
+
+### 🏷️ Test Suites & Tags
+
+This repo uses Playwright title tags (e.g., `@smoke`) so you can select suites via `--grep`:
+
+* **`@smoke`**: Small critical-path checks for fast feedback (used by `npm run test:smoke`).
+* **`@api`**: API-focused specs (also selectable via `--project=api-tests`).
+* **`@visual`**: Visual regression specs (used by `--project=visual-regression` and `--grep @visual`).
+* **`@ai-healing`**: Local-only AI self-healing demos (excluded from CI by default).
+* **`@e2e`**: End-to-end flows (e.g. full place-order journey).
+* **`@flaky`**: Temporarily flaky tests; run in isolation with `npm run test:flaky` to debug or triage.
+
+### Flakiness Mitigation
+
+The framework reduces flakiness in several ways:
+
+* **Retries and diagnostics:** In [playwright.config.ts](playwright.config.ts), CI runs use `retries: 2`, `trace: 'on-first-retry'`, and `screenshot: 'only-on-failure'` so failures produce traces and screenshots for debugging.
+* **Visual stability:** Visual regression tests in [tests/visual](tests/visual) use [src/utils/test-utils.ts](src/utils/test-utils.ts): **`TestUtils.blockAds`** (network blocking and CSS hiding of ad slots) and **`TestUtils.prepareForScreenshot`** (font normalization, animations disabled, scrollbar hidden, full-page scroll before capture). Call both before `toHaveScreenshot()` so snapshots are stable across runs.
+* **Managing flaky tests:** Tests that are temporarily flaky can be tagged with `@flaky` in the title. Run only those with `npm run test:flaky` to isolate and fix them without blocking the main suite.
+
+### Visual testing
+
+Visual specs in [tests/visual](tests/visual) follow a consistent pattern: **block ads** and **prepare for screenshot** via `TestUtils`, then capture. Example:
+
+1. `await TestUtils.blockAds(page);`
+2. Navigate and wait for the content you need.
+3. `await TestUtils.prepareForScreenshot(page);`
+4. `await expect(page).toHaveScreenshot(...);`
+
+See [tests/visual/home.visual.spec.ts](tests/visual/home.visual.spec.ts) and [tests/visual/login.visual.spec.ts](tests/visual/login.visual.spec.ts).
+
+### Representative Scenarios
+
+Curated specs that show what the framework can do:
+
+* **Auth:** [tests/auth/login.spec.ts](tests/auth/login.spec.ts), [tests/auth/signup.spec.ts](tests/auth/signup.spec.ts) – Login form validation, happy path, logout, signup with existing-email, and full user lifecycle.
+* **API:** [tests/api/user-lifecycle.api.spec.ts](tests/api/user-lifecycle.api.spec.ts) – Full user CRUD (create, get, update, delete) with schema validation and negative paths.
+* **Visual:** [tests/visual/home.visual.spec.ts](tests/visual/home.visual.spec.ts), [tests/visual/login.visual.spec.ts](tests/visual/login.visual.spec.ts) – Baseline snapshots with `TestUtils.blockAds` and `prepareForScreenshot` for stability.
+* **AI demo:** [tests/ai-demo/smart-click.spec.ts](tests/ai-demo/smart-click.spec.ts), [tests/ai-demo/self-healing.spec.ts](tests/ai-demo/self-healing.spec.ts) – Self-healing locators via `smartClick` and the AI bridge when a selector fails.
+* **E2E:** [tests/e2e/place-order.logged.spec.ts](tests/e2e/place-order.logged.spec.ts) – Full checkout: add product, cart, checkout, payment, and order success message.
+* **Fixtures:** Uses `homePage`, cart from “View Cart” modal, `CheckoutPage`, and `PaymentPage` (see `src/pages/checkout.page.ts`, `src/pages/payment.page.ts`).
 
 ---
 
@@ -65,6 +153,77 @@ This framework includes a "Pro" feature for local development: an experimental *
    ```
 
 > Note: For ai-healing  **Start Ollama** (Ensure you have Ollama installed and `llama3.2` pulled).
+
+### ⚙️ Configuration & Environment Variables
+
+The framework can be configured via environment variables to better model real-world environments:
+
+* **`PLAYWRIGHT_BASE_URL`**: Base URL for all UI and API tests.
+  * Default: `https://automationexercise.com`
+  * Used in `playwright.config.ts` via `appConfig.baseUrl`.
+
+* **`AI_ENABLED`**: Gate for AI self-healing behaviour.
+  * Default: `true` (set to `'false'` to consider AI disabled in your own code paths).
+
+* **`AI_BASE_URL`**: Base URL for the AI / LLM endpoint.
+  * Default: `http://localhost:11434/v1` (local Ollama).
+
+* **`AI_API_KEY`**: API key used by the AI client.
+  * Default: `ollama` (placeholder used for local Ollama setups that do not enforce authentication).
+
+* **`AI_MODEL`**: Model name used when calling the AI engine.
+  * Default: `llama3.2:3b`.
+
+* **`TEST_DATA_SEED`**: Optional. When set (e.g. to an integer), Faker is seeded so user data (names, emails, etc.) is reproducible across runs. See [Test Data Strategy](#-test-data-strategy) below.
+
+All of these variables are wired through `src/config.ts` and consumed by both `playwright.config.ts` and `src/ai-engine/ai-bridge.ts`, so you can easily point the same test suite at different environments without changing code.
+
+### 📋 Test Data Strategy
+
+* **User data generation:** [src/utils/user-factory.ts](src/utils/user-factory.ts) uses `@faker-js/faker` to generate user payloads (name, email, password, address, etc.). `generateUserData(false)` returns minimal required fields; `generateUserData(true)` adds title, birth date, company, address2, newsletter, and offers so signup/API tests have full profiles.
+* **Lifecycle and cleanup:** [src/fixtures/user.fixtures.ts](src/fixtures/user.fixtures.ts) defines fixtures that create and (where needed) delete users via the API: `preCreatedUser` / `preCreatedFullUser` create a user, yield it to the test, then delete the account in teardown; `persistentUser` is created once and not deleted by the fixture. [tests/global.teardown.ts](tests/global.teardown.ts) runs after the suite and deletes the persistent user used by auth setup, then removes `playwright/.auth` session and user files so the environment is clean for the next run.
+* **Static expectations:** [src/utils/data-helper.ts](src/utils/data-helper.ts) centralizes fixed test data: dropdown options (months, days, years, countries), cart table headers, and the single expected product used for cart flows (e.g. “Stylish Dress”). Use it wherever tests need to assert on known values instead of Faker output.
+* **Determinism (optional):** Set the `TEST_DATA_SEED` environment variable to a number (e.g. `42`) so Faker is seeded at load time. Every run with the same seed will then produce the same sequence of names, emails, and other generated fields. Use this when you need reproducible data (e.g. debugging, CI snapshots, or reducing variance). Leave it unset for realistic, varied data across runs.
+* **Trade-offs:** Random data (no seed) exercises more combinations and avoids coupling tests to a single dataset. Seeded data makes failures reproducible and logs/snapshots stable. Prefer random data by default; switch to a seed when debugging flakiness or when you need a fixed dataset.
+
+#### Local environment
+
+* Copy the sample file: `cp .env.sample .env`
+* (Optional) Adjust the values if you want to point at a different base URL or AI endpoint.
+* Load the variables before running tests, for example:
+  * Export via your shell: `export $(grep -v '^#' .env | xargs) && npx playwright test`
+  * Or use a helper like `dotenv-cli` / `env-cmd` if you prefer.
+
+#### CI environment (e.g., GitHub Actions)
+
+In CI, set the same variables as environment variables or secrets:
+
+* `PLAYWRIGHT_BASE_URL`
+* `AI_ENABLED`
+* `AI_BASE_URL`
+* `AI_API_KEY`
+* `AI_MODEL`
+
+For GitHub Actions, a common pattern is:
+
+1. Define repository or environment secrets:
+   * `PLAYWRIGHT_BASE_URL`
+   * `AI_ENABLED`
+   * `AI_BASE_URL`
+   * `AI_API_KEY`
+   * `AI_MODEL`
+2. Map them into your workflow jobs using `env:`. For example:
+
+```yaml
+env:
+  PLAYWRIGHT_BASE_URL: ${{ secrets.PLAYWRIGHT_BASE_URL }}
+  AI_ENABLED: ${{ secrets.AI_ENABLED }}
+  AI_BASE_URL: ${{ secrets.AI_BASE_URL }}
+  AI_API_KEY: ${{ secrets.AI_API_KEY }}
+  AI_MODEL: ${{ secrets.AI_MODEL }}
+```
+
+You can place this `env` block at the `jobs.api-tests`, `jobs.ui-tests`, and/or `jobs.merge-reports` levels in `.github/workflows/playwright.yml` depending on which suites you want to configure.
 
 ### **🐳 Running with Docker**
 

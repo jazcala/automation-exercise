@@ -22,7 +22,10 @@ test.describe('AI Self-Healing Demo @ai-healing', () => {
       const healedSelector = await getHealedLocatorOrThrow(domSnippet, goal);
 
       await page.click(healedSelector);
-      logHealing(brokenSelector, healedSelector, goal);
+      logHealing(brokenSelector, healedSelector, goal, {
+        testName: test.info().title,
+        decision: 'success'
+      });
     }
 
     await expect(page).toHaveURL(/contact_us/);

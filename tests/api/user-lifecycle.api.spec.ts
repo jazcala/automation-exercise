@@ -4,9 +4,9 @@ import { test, expect } from '../../src/fixtures/base-fixture';
 
 test.describe('User Account API Lifecycle @api', () => {
 
-  test('POST - create user with required fields', async ({ userApi }) => {
+  test('POST - create user with required fields @smoke', async ({ userApi }) => {
     // *  Test 1: Create User (POST) -> Verify success.÷
-    const testUser: User = generateUserData();
+    const testUser: User = await generateUserData();
     const response = await userApi.createAccount(testUser);
     expect(response.status()).toBe(200);
     const body = await response.json();
@@ -21,7 +21,7 @@ test.describe('User Account API Lifecycle @api', () => {
 
   test('POST - create user with all fields', async ({ userApi }) => {
 
-    const testUser: User = generateUserData(true);
+    const testUser: User = await generateUserData(true);
     const response = await userApi.createAccount(testUser);
     expect(response.status()).toBe(200);
     const body = await response.json();
@@ -97,7 +97,7 @@ test.describe('User Account API Lifecycle @api', () => {
   test('DELETE - Delete user', async ({ userApi }) => {
     // *  Test 4: Delete User(DELETE) -> Verify account is gone.
     //1. Create Account
-    const testUser: User = generateUserData();
+    const testUser: User = await generateUserData();
     const responseCreate = await userApi.createAccount(testUser);
     expect(responseCreate.status()).toBe(200);
 

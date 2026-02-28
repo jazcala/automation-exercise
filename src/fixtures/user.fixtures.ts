@@ -12,14 +12,14 @@ type MyObjects = {
 
 export const userTest = apiTest.extend<MyObjects>({
   persistentUser: async ({ userApi }, use) => {
-    const userData: User = generateUserData();
+    const userData: User = await generateUserData();
     await userApi.createAccount(userData);
     await use(userData);
   },
 
   preCreatedUser: async ({ userApi }, use) => {
 
-    const userData: User = generateUserData();
+    const userData: User = await generateUserData();
     await userApi.createAccount(userData);
     await use(userData);
     // --- TEARDOWN ---
@@ -29,7 +29,7 @@ export const userTest = apiTest.extend<MyObjects>({
     });
   },
   preCreatedFullUser: async ({ userApi }, use) => {
-    const userData: User = generateUserData(true);
+    const userData: User = await generateUserData(true);
     await userApi.createAccount(userData);
     await use(userData);
     // --- TEARDOWN ---
@@ -39,11 +39,11 @@ export const userTest = apiTest.extend<MyObjects>({
     });
   },
   userData: async ({ }, use) => {
-    const userData: User = generateUserData();
+    const userData: User = await generateUserData();
     await use(userData);
   },
   userDataFull: async ({ }, use) => {
-    const userData: User = generateUserData(true);
+    const userData: User = await generateUserData(true);
     await use(userData);
   },
 

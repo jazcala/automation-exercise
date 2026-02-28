@@ -2,7 +2,7 @@ import { test, expect } from '../../src/fixtures/base-fixture';
 
 test.describe('homepage test - logged in user', () => {
 
-  test('verify logut link is visible', async ({ homePage }) => {
+  test('verify logut link is visible @smoke', async ({ homePage }) => {
 
     await expect(homePage.logoutLink).toBeVisible();
 

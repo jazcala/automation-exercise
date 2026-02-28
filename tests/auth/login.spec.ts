@@ -16,7 +16,7 @@ test.describe('Login', () => {
 
   });
 
-  test('Login User with correct email and password', async ({
+  test('Login user with correct email and password @smoke', async ({
     loginReadyPage, preCreatedUser }) => {
     const { email, password, name } = preCreatedUser;
     const homePage = await loginReadyPage.login(email, password);
@@ -38,7 +38,7 @@ test.describe('Login', () => {
     await expect(homePage.logoutLink).toBeVisible();
     await homePage.logout();
     await expect(homePage.logoutLink).toBeHidden();
-    await expect(homePage.singupLoginLink).toBeVisible();
+    await expect(homePage.signupLoginLink).toBeVisible();
 
   });
 

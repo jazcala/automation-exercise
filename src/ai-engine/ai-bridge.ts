@@ -1,13 +1,14 @@
 import OpenAI from 'openai';
 import * as fs from 'fs';
 import * as path from 'path';
+import { appConfig } from '../config';
 
 /**
  * Setup the connection to Local Ollama
  */
 const ollama = new OpenAI({
-  baseURL: 'http://localhost:11434/v1',
-  apiKey: 'ollama',
+  baseURL: appConfig.ai.baseUrl,
+  apiKey: appConfig.ai.apiKey,
 });
 
 /**
@@ -15,7 +16,7 @@ const ollama = new OpenAI({
  */
 export async function askLocalAI(htmlSnippet: string, goal: string): Promise<string> {
   const response = await ollama.chat.completions.create({
-    model: 'llama3.2:3b',
+    model: appConfig.ai.model,
     temperature: 0.1,
     messages: [
       {
@@ -96,14 +97,29 @@ export async function getHealedLocatorOrThrow(html: string, goal: string): Promi
   return result;
 }
 
+export type HealingLogMeta = {
+  testName?: string;
+  decision?: 'success' | 'fallback';
+  model?: string;
+};
+
 /**
- * Logs the results of a healing attempt to a file
+ * Logs the results of a healing attempt to a file with full observability.
  */
-export function logHealing(original: string, fixed: string, goal: string): void {
-  const logMessage = `[${new Date().toLocaleString()}]
+export function logHealing(
+  original: string,
+  fixed: string,
+  goal: string,
+  meta?: HealingLogMeta
+): void {
+  const model = meta?.model ?? appConfig.ai.model;
+  const logMessage = `[${new Date().toISOString()}]
+TEST: ${meta?.testName ?? '(unknown)'}
 GOAL: ${goal}
-FAILED: ${original}
-FIXED: ${fixed}
+ORIGINAL_SELECTOR: ${original}
+HEALED_SELECTOR: ${fixed}
+DECISION: ${meta?.decision ?? 'success'}
+MODEL: ${model}
 --------------------------------------------------\n`;
 
   const logPath = path.join(__dirname, '../../healing-report.log');

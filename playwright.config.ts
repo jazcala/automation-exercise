@@ -1,4 +1,5 @@
 import { defineConfig, devices } from '@playwright/test';
+import { appConfig } from './src/config';
 const GUEST_STATE = { cookies: [], origins: [] };
 const LOGGED_IN_STATE = 'playwright/.auth/user.json';
 
@@ -11,7 +12,7 @@ export default defineConfig({
   reporter: process.env.CI ? 'blob' : 'html',
   globalTeardown: require.resolve('./tests/global.teardown'),
   use: {
-    baseURL: 'https://automationexercise.com',
+    baseURL: appConfig.baseUrl,
     screenshot: 'only-on-failure',
     testIdAttribute: 'data-qa',
     trace: 'on-first-retry',
