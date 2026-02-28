@@ -29,6 +29,19 @@ This framework includes a "Pro" feature for local development: an experimental *
 
 > **Note:** These tests are excluded from CI and the standard Docker build to maintain fast execution speeds and avoid infrastructure bottlenecks.
 
+#### AI Self-Healing: boundaries, failures, and observability
+
+* **Where it lives:** AI healing is used only in `@ai-healing` suites. Key files:
+  * [tests/ai-demo/self-healing.spec.ts](tests/ai-demo/self-healing.spec.ts) – direct use of the AI bridge and `logHealing`.
+  * [tests/ai-demo/smart-click.spec.ts](tests/ai-demo/smart-click.spec.ts) – healing via `HomePage.clickContactUs` and `smartClick`.
+  * [src/pages/base.page.ts](src/pages/base.page.ts) – `smartClick(selector, goal, meta?)` tries the locator, then calls the AI bridge on failure and logs the result.
+  * [src/ai-engine/ai-bridge.ts](src/ai-engine/ai-bridge.ts) – `askLocalAI` / `getHealedLocatorOrThrow` and `logHealing(original, fixed, goal, meta?)` with optional test name, decision, and model.
+* **When AI runs:** Only when a locator fails (e.g. click times out) inside a flow that uses `smartClick` or the bridge. Normal tests do not call the AI.
+* **Failure handling:** If the healed selector is invalid or click fails, the test fails with an error. If the LLM returns an unusable selector, `getHealedLocatorOrThrow` throws so the test fails with a clear message.
+* **Logs:** Every successful healing is appended to **`healing-report.log`** at the project root with: timestamp, test name (if provided), goal, original selector, healed selector, decision, and model. Inspect this file after running `npx playwright test --grep @ai-healing` locally to see what was healed.
+
+* **Note on infrastructure:** **`@ai-healing` tests are designed to run locally** where the Ollama model is hosted. If you run them without Ollama installed, you will see the connection error (e.g. `ECONNREFUSED` to `localhost:11434`), which makes it clear that Ollama is required.
+
 ### 📡 API Layer
 
 * **Schema Validation:** Uses TypeScript interfaces and `expect.any()` to verify response structures dynamically, preventing brittle tests.
