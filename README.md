@@ -105,7 +105,17 @@ The framework can be configured via environment variables to better model real-w
 * **`AI_MODEL`**: Model name used when calling the AI engine.
   * Default: `llama3.2:3b`.
 
+* **`TEST_DATA_SEED`**: Optional. When set (e.g. to an integer), Faker is seeded so user data (names, emails, etc.) is reproducible across runs. See [Test Data Strategy](#-test-data-strategy) below.
+
 All of these variables are wired through `src/config.ts` and consumed by both `playwright.config.ts` and `src/ai-engine/ai-bridge.ts`, so you can easily point the same test suite at different environments without changing code.
+
+### 📋 Test Data Strategy
+
+* **User data generation:** [src/utils/user-factory.ts](src/utils/user-factory.ts) uses `@faker-js/faker` to generate user payloads (name, email, password, address, etc.). `generateUserData(false)` returns minimal required fields; `generateUserData(true)` adds title, birth date, company, address2, newsletter, and offers so signup/API tests have full profiles.
+* **Lifecycle and cleanup:** [src/fixtures/user.fixtures.ts](src/fixtures/user.fixtures.ts) defines fixtures that create and (where needed) delete users via the API: `preCreatedUser` / `preCreatedFullUser` create a user, yield it to the test, then delete the account in teardown; `persistentUser` is created once and not deleted by the fixture. [tests/global.teardown.ts](tests/global.teardown.ts) runs after the suite and deletes the persistent user used by auth setup, then removes `playwright/.auth` session and user files so the environment is clean for the next run.
+* **Static expectations:** [src/utils/data-helper.ts](src/utils/data-helper.ts) centralizes fixed test data: dropdown options (months, days, years, countries), cart table headers, and the single expected product used for cart flows (e.g. “Stylish Dress”). Use it wherever tests need to assert on known values instead of Faker output.
+* **Determinism (optional):** Set the `TEST_DATA_SEED` environment variable to a number (e.g. `42`) so Faker is seeded at load time. Every run with the same seed will then produce the same sequence of names, emails, and other generated fields. Use this when you need reproducible data (e.g. debugging, CI snapshots, or reducing variance). Leave it unset for realistic, varied data across runs.
+* **Trade-offs:** Random data (no seed) exercises more combinations and avoids coupling tests to a single dataset. Seeded data makes failures reproducible and logs/snapshots stable. Prefer random data by default; switch to a seed when debugging flakiness or when you need a fixed dataset.
 
 #### Local environment
 
