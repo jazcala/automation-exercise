@@ -5,19 +5,19 @@ test.describe('cart page tests - guest user', () => {
 
   test.describe('validate page elements', () => {
 
-    test('verify emplty list state', async ({ cartPage }) => {
+    test('verify emplty list state', async ({ pom }) => {
 
-      await expect(cartPage.page).toHaveURL(/view_cart/);
-      await expect.soft(cartPage.emptyCartMessage).toBeVisible();
-      await expect.soft(cartPage.emptyCartMessage).toHaveText('Cart is empty! Click here to buy products.');
-      await expect.soft(cartPage.emptyCartLink).toBeVisible();
-      await expect.soft(cartPage.emptyCartLink).toHaveText('here');
+      await pom.cartPage.navigate();
+      await expect.soft(pom.cartPage.emptyCartMessage).toBeVisible();
+      await expect.soft(pom.cartPage.emptyCartMessage).toHaveText('Cart is empty! Click here to buy products.');
+      await expect.soft(pom.cartPage.emptyCartLink).toBeVisible();
+      await expect.soft(pom.cartPage.emptyCartLink).toHaveText('here');
 
     });
 
     test('verify table headers', async ({ cartPageReady }) => {
 
-      const { cartPage } = cartPageReady;
+      const cartPage = cartPageReady.pom.cartPage;
       const expectedHeaders = DataHelper.getExpectedCartTableHeaders();
 
       expect(await cartPage.getTableHeaders()).toEqual(expectedHeaders);
@@ -26,8 +26,8 @@ test.describe('cart page tests - guest user', () => {
   });
 
   test('verify product details in cart table', async ({ cartPageReady }) => {
-
-    const { cartPage, productDetails } = cartPageReady;
+    const cartPage = cartPageReady.pom.cartPage;
+    const productDetails = cartPageReady.productDetails;
     const actualData = await cartPage.getProductDataFromRow(productDetails.name);
 
     expect.soft(actualData.description).toContain(productDetails.name);
@@ -37,69 +37,67 @@ test.describe('cart page tests - guest user', () => {
   });
 
   test('remove product from cart', async ({ cartPageReady }) => {
+    const { pom, productDetails } = cartPageReady;
 
-    const { cartPage, productDetails } = cartPageReady;
+    await pom.cartPage.removeItemFromCart(productDetails.name);
+    await expect(pom.cartPage.emptyCartMessage).toBeVisible();
+    await pom.cartPage.goToHomePageViaEmptyCartLink();
 
-    await cartPage.removeItemFromCart(productDetails.name);
-    await expect(cartPage.emptyCartMessage).toBeVisible();
-    const productsPage = await cartPage.goToHomePageViaEmptyCartLink();
-
-    await expect(productsPage.page).toHaveURL('/products');
+    await expect(pom.productPage.page).toHaveURL('/products');
   });
 
   test.describe('proceed to checkout modal - guest user', () => {
 
     test('verify modal elements', async ({ cartPageReady }) => {
 
-      const { cartPage } = cartPageReady;
-      await cartPage.proceedToCheckoutAsGuest();
+      const { pom } = cartPageReady;
+      await pom.cartPage.proceedToCheckoutAsGuest();
 
-      await expect(cartPage.checkoutModal).toBeVisible();
-      await expect.soft(cartPage.checkoutModalTitle).toBeVisible();
-      await expect.soft(cartPage.checkoutModalTitle).toHaveText('Checkout');
-      await expect.soft(cartPage.checkoutModalText).toBeVisible();
-      await expect.soft(cartPage.checkoutModalSignupLoginLink).toBeVisible();
-      await expect.soft(cartPage.checkoutModalContinueOnCartButton).toBeVisible();
+      await expect(pom.cartPage.checkoutModal).toBeVisible();
+      await expect.soft(pom.cartPage.checkoutModalTitle).toBeVisible();
+      await expect.soft(pom.cartPage.checkoutModalTitle).toHaveText('Checkout');
+      await expect.soft(pom.cartPage.checkoutModalText).toBeVisible();
+      await expect.soft(pom.cartPage.checkoutModalSignupLoginLink).toBeVisible();
+      await expect.soft(pom.cartPage.checkoutModalContinueOnCartButton).toBeVisible();
 
     });
 
     test('continue on cart from modal', async ({ cartPageReady }) => {
-
-      const { cartPage } = cartPageReady;
-      await cartPage.proceedToCheckoutAsGuest();
-      await cartPage.checkoutModalContinueOnCartButton.click();
-      await expect(cartPage.page).toHaveURL(/view_cart/);
-      await expect(cartPage.checkoutModal).toBeHidden();
+      const { pom } = cartPageReady;
+      await pom.cartPage.proceedToCheckoutAsGuest();
+      await pom.cartPage.checkoutModalContinueOnCartButton.click();
+      await expect(pom.cartPage.page).toHaveURL(/view_cart/);
+      await expect(pom.cartPage.checkoutModal).toBeHidden();
 
     });
 
     test('go to signup/login from modal', async ({ cartPageReady }) => {
 
-      const { cartPage } = cartPageReady;
-      await cartPage.proceedToCheckoutAsGuest();
-      await cartPage.checkoutModalSignupLoginLink.click();
-      await expect(cartPage.page).toHaveURL(/login/);
+      const { pom } = cartPageReady;
+      await pom.cartPage.proceedToCheckoutAsGuest();
+      await pom.cartPage.checkoutModalSignupLoginLink.click();
+      await expect(pom.cartPage.page).toHaveURL(/login/);
 
     });
 
   });
 
-  test('go to home page and add another product - verify product list in cart - and total calculation', async ({ cartPageReady
+  test('go to home page and add another product - verify product list in cart - and total calculation', async ({
+    cartPageReady,
 
   }) => {
-    const { cartPage, productDetails } = cartPageReady;
-    const homePage = await cartPage.navigaToHomeViaBreadcrum();
+    const { pom, productDetails } = cartPageReady;
+    await pom.cartPage.navigaToHomeViaBreadcrum();
 
-    await expect(homePage.page).toHaveURL('/');
+    await expect(pom.homePage.page).toHaveURL('/');
 
-    const newCartPage = await homePage.addProductAndViewCart(productDetails);
-    const { quantity, total } = await newCartPage.getProductDataFromRow('Stylish Dress');
+    await pom.homePage.addProductAndViewCart(productDetails);
+    const { quantity, total } = await pom.cartPage.getProductDataFromRow('Stylish Dress');
 
     expect.soft(Number(quantity)).toBe(2);
     const unitPrice = Number(productDetails.price.replace('Rs. ', ''));
     const expectedTotal = unitPrice * 2;
     expect.soft(Number(total.replace('Rs. ', ''))).toBe(expectedTotal);
-
   });
 
 });

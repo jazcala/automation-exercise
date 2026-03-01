@@ -2,9 +2,10 @@ import { test, expect } from '../../src/fixtures/base-fixture';
 
 test.describe('homepage test - logged in user', () => {
 
-  test('verify logut link is visible @smoke', async ({ homePage }) => {
+  test('verify logut link is visible @smoke', async ({ pom }) => {
 
-    await expect(homePage.logoutLink).toBeVisible();
+    await pom.homePage.navigate();
+    await expect(pom.homePage.logoutLink).toBeVisible();
 
   });
 
@@ -13,33 +14,36 @@ test.describe('homepage test - logged in user', () => {
      * This modal is displayed after a product is added to the cart
      */
 
-    test('verify Added modal elements', async ({ homePage }) => {
+    test('verify Added modal elements', async ({ pom }) => {
 
-      await homePage.addFirstProductToCart();
-      await expect(homePage.addedModal).toBeVisible();
-      await expect(homePage.addedModalViewCartLink).toBeVisible();
-      await expect(homePage.addedModalTitle).toBeVisible();
-      await expect(homePage.addedModalText).toBeVisible();
-      await expect(homePage.addedModalContinueShoppingButton).toBeVisible();
+      await pom.homePage.navigate();
+      await pom.homePage.addFirstProductToCart();
+      await expect(pom.homePage.addedModal).toBeVisible();
+      await expect(pom.homePage.addedModalViewCartLink).toBeVisible();
+      await expect(pom.homePage.addedModalTitle).toBeVisible();
+      await expect(pom.homePage.addedModalText).toBeVisible();
+      await expect(pom.homePage.addedModalContinueShoppingButton).toBeVisible();
 
     });
 
-    test('verify Added modal view cart navigation', async ({ homePage }) => {
+    test('verify Added modal view cart navigation', async ({ pom }) => {
 
-      await homePage.addFirstProductToCart();
-      await expect(homePage.addedModal).toBeVisible();
-      await expect(homePage.addedModalViewCartLink).toBeVisible();
-      const cartPage = await homePage.viewCartFromAddedModal();
-      await expect(cartPage.page).toHaveURL('view_cart');
+      await pom.homePage.navigate();
+      await pom.homePage.addFirstProductToCart();
+      await expect(pom.homePage.addedModal).toBeVisible();
+      await expect(pom.homePage.addedModalViewCartLink).toBeVisible();
+      await pom.homePage.viewCartFromAddedModal();
+      await expect(pom.cartPage.page).toHaveURL('view_cart');
     });
 
-    test('verify Added modal - continue shopping', async ({ homePage }) => {
+    test('verify Added modal - continue shopping', async ({ pom }) => {
 
-      await homePage.addFirstProductToCart();
-      await expect(homePage.addedModal).toBeVisible();
-      await expect(homePage.addedModalContinueShoppingButton).toBeVisible();
-      await homePage.continueShoppingFromAddedModal();
-      await expect(homePage.addedModal).toBeHidden();
+      await pom.homePage.navigate();
+      await pom.homePage.addFirstProductToCart();
+      await expect(pom.homePage.addedModal).toBeVisible();
+      await expect(pom.homePage.addedModalContinueShoppingButton).toBeVisible();
+      await pom.homePage.continueShoppingFromAddedModal();
+      await expect(pom.homePage.addedModal).toBeHidden();
 
     });
 

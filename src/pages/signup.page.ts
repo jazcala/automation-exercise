@@ -1,6 +1,5 @@
 import { Page, Locator } from '@playwright/test';
 import { BasePage } from './base.page';
-import { AccountCreatedPage } from './account-created.page';
 import { User } from '../interfaces/interfaces';
 
 export class SignupPage extends BasePage {
@@ -62,8 +61,7 @@ export class SignupPage extends BasePage {
     this.createAccountButton = page.getByRole('button', { name: 'Create Account' });
   }
 
-  async signup(user: User, isFull: boolean = false): Promise<AccountCreatedPage> {
-
+  async signup(user: User, isFull: boolean = false): Promise<void> {
     await this.signupNameField.fill(user.name);
     await this.signupPasswordField.fill(user.password);
 
@@ -96,8 +94,6 @@ export class SignupPage extends BasePage {
     await this.mobileNumberField.fill(user.mobile_number);
 
     await this.createAccountButton.click();
-
-    return new AccountCreatedPage(this.page);
   }
 
   async getDaysOptions(): Promise<string[]> {

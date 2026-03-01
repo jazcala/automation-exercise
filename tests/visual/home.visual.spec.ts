@@ -3,15 +3,15 @@ import { TestUtils } from '../../src/utils/test-utils';
 
 test.describe('Homepage Visuals @visual', () => {
 
-  test('should match the baseline snapshot', async ({ homePage, page }) => {
+  test('should match the baseline snapshot', async ({ pom, page }) => {
     await TestUtils.blockAds(page);
-    await homePage.navigate();
-    await expect(homePage.footer).toBeVisible();
+    await pom.homePage.navigate();
+    await expect(pom.homePage.footer).toBeVisible();
     await TestUtils.prepareForScreenshot(page);
     await expect(page).toHaveScreenshot('homepage.png', {
       mask: [
-        homePage.mainCarouselSlider,
-        homePage.recommendedItemCarousel
+        pom.homePage.mainCarouselSlider,
+        pom.homePage.recommendedItemCarousel
       ], fullPage: true
     });
 

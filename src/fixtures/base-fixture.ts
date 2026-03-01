@@ -1,52 +1,32 @@
 import { userTest } from './user.fixtures';
-import { LoginPage } from '../pages/login.page';
-import { HomePage } from '../pages/home.page';
-import { ProductPage } from '../pages/products.page';
+import { PomManager } from '../pages/pom-manager';
 import { SignupPage } from '../pages/signup.page';
-import { CartPage } from '../pages/cart.page';
 import { User, Product } from '../interfaces/interfaces';
 import { DataHelper } from '../utils/data-helper';
 
 type MyObjects = {
-  loginReadyPage: LoginPage;
-  loginPage: LoginPage;
-  homePage: HomePage;
-  productPage: ProductPage;
+  pom: PomManager;
   signupReadyPage: {
     signupPage: SignupPage;
     user: User;
   };
-  productPageReady: ProductPage;
-  cartPage: CartPage;
   cartPageReady: {
-    cartPage: CartPage,
-    productDetails: Product
+    pom: PomManager;
+    productDetails: Product;
   };
 }
 
 export const test = userTest.extend<MyObjects>({
-  loginPage: async ({ page }, use) => {
-    await use(new LoginPage(page));
+  pom: async ({ page }, use) => {
+    await use(new PomManager(page));
   },
 
-  loginReadyPage: async ({ page }, use) => {
-    const loginPage = new LoginPage(page);
-    await loginPage.navigate();
-    await use(loginPage);
-  },
-
-  homePage: async ({ page }, use) => {
-    const homePage = new HomePage(page);
-    await homePage.navigate();
-    await use(homePage);
-  },
-
-  signupReadyPage: async ({ loginReadyPage, userApi, page, userDataFull }, use) => {
+  signupReadyPage: async ({ userApi, pom, userDataFull }, use) => {
     const user = userDataFull;
-    await loginReadyPage.signup(user.name, user.email);
-    const signupPage = new SignupPage(page);
+    await pom.loginPage.navigate();
+    await pom.loginPage.signup(user.name, user.email);
 
-    await use({ signupPage, user });
+    await use({ signupPage: pom.signupPage, user });
 
     // --- TEARDOWN ---
     await userApi.deleteAccount({
@@ -55,30 +35,13 @@ export const test = userTest.extend<MyObjects>({
     });
   },
 
-  productPage: async ({ page }, use) => {
-    await use(new ProductPage(page));
-  },
-
-  productPageReady: async ({ page }, use) => {
-    const productPage = new ProductPage(page);
-    await productPage.navigate();
-    await use(productPage);
-  },
-  cartPage: async ({ page }, use) => {
-    const cartPage = new CartPage(page);
-    await cartPage.navigate();
-    await use(cartPage);
-  },
-
-  cartPageReady: async ({ page }, use) => {
-    const homePage = new HomePage(page);
-    await homePage.navigate();
+  cartPageReady: async ({ page, pom }, use) => {
+    await pom.homePage.navigate();
     await page.context().clearCookies();
     const productDetails = DataHelper.getExpectedProduct();
-    const cartPage = await homePage.addProductAndViewCart(productDetails);
-    await use({ cartPage, productDetails });
+    await pom.homePage.addProductAndViewCart(productDetails);
+    await use({ productDetails, pom });
   }
-
 });
 
 export { expect } from '@playwright/test';

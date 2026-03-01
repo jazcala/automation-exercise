@@ -5,41 +5,47 @@ test.describe('Signup from Login page', () => {
 
   test.describe('form field validation in', () => {
 
-    test('Validate  Signup form Elements in Login page', async ({ loginReadyPage }) => {
-      await expect.soft(loginReadyPage.page).toHaveURL('/login');
-      await expect.soft(loginReadyPage.signupTitle).toBeVisible();
-      await expect.soft(loginReadyPage.signupNameField).toBeVisible();
-      await expect.soft(loginReadyPage.signupEmailField).toBeVisible();
-      await expect.soft(loginReadyPage.signupEmailField).toHaveAttribute('placeholder', 'Email Address');
-      await expect.soft(loginReadyPage.signupButton).toBeVisible();
+    test('Validate  Signup form Elements in Login page', async ({ pom }) => {
+      await pom.loginPage.navigate();
+      await expect.soft(pom.loginPage.page).toHaveURL('/login');
+      await expect.soft(pom.loginPage.signupTitle).toBeVisible();
+      await expect.soft(pom.loginPage.signupNameField).toBeVisible();
+      await expect.soft(pom.loginPage.signupEmailField).toBeVisible();
+      await expect.soft(pom.loginPage.signupEmailField).toHaveAttribute('placeholder', 'Email Address');
+      await expect.soft(pom.loginPage.signupButton).toBeVisible();
 
     });
 
-    test('verify name empty validation message', async ({ loginReadyPage }) => {
-      await loginReadyPage.signup();
-      expect(await loginReadyPage.getSignupNameValidationMessage()).toBe('Please fill out this field.');
+    test('verify name empty validation message', async ({ pom }) => {
+      await pom.loginPage.navigate();
+      await pom.loginPage.signup();
+      expect(await pom.loginPage.getSignupNameValidationMessage()).toBe('Please fill out this field.');
     });
 
-    test('verify email empty validation message', async ({ loginReadyPage }) => {
-      await loginReadyPage.signup('some name');
-      expect(await loginReadyPage.getSignupEmailValidationMessage()).toBe('Please fill out this field.');
+    test('verify email empty validation message', async ({ pom }) => {
+
+      await pom.loginPage.navigate();
+      await pom.loginPage.signup('some name');
+      expect(await pom.loginPage.getSignupEmailValidationMessage()).toBe('Please fill out this field.');
     });
 
   });
 
-  test('Signup user with existing email', async ({ loginReadyPage, preCreatedUser }) => {
+  test('Signup user with existing email', async ({ pom, preCreatedUser }) => {
     const { name, email } = preCreatedUser;
-    await loginReadyPage.signup(name, email);
-    await expect(loginReadyPage.page.getByText('Email Address already exist!')).toBeVisible();
+    await pom.loginPage.navigate();
+    await pom.loginPage.signup(name, email);
+    await expect(pom.loginPage.page.getByText('Email Address already exist!')).toBeVisible();
   });
 
   test.describe('Navigate to Signup Page from Login Page', () => {
 
-    test('add signup info in login page - form validation', async ({ userData, loginReadyPage, page }) => {
+    test('add signup info in login page - form validation', async ({ userData, page, pom }) => {
       const user = userData;
-      const signupPage = await loginReadyPage.signup(user.name, user.email);
+      await pom.loginPage.navigate();
+      await pom.loginPage.signup(user.name, user.email);
       await expect(page).toHaveURL('/signup');
-      await expect.soft(signupPage.accountInfoTitle).toBeVisible();
+      await expect.soft(pom.signupPage.accountInfoTitle).toBeVisible();
     });
 
     test.describe('Signup Page form validation', () => {
@@ -119,29 +125,27 @@ test.describe('Signup from Login page', () => {
     });
   });
 
-  test('Signup User with required data', async ({ signupReadyPage }) => {
+  test('Signup User with required data', async ({ signupReadyPage, pom }) => {
     const { signupPage, user } = signupReadyPage;
     await expect(signupPage.page).toHaveURL('/signup');
-    const accountCreatedPage = await signupPage.signup(user);
-    await expect(accountCreatedPage.page).toHaveURL('/account_created');
-    await expect.soft(accountCreatedPage.accountCreatedTitle).toBeVisible();
+    await signupPage.signup(user);
+    await expect(pom.accountCreatedPage.page).toHaveURL('/account_created');
+    await expect.soft(pom.accountCreatedPage.accountCreatedTitle).toBeVisible();
   });
 
-  test('Full user lifecycle: Signup -> Account Created -> Home Page', async ({ signupReadyPage }) => {
-
+  test('Full user lifecycle: Signup -> Account Created -> Home Page', async ({ signupReadyPage, pom }) => {
     const { signupPage, user } = signupReadyPage;
     await expect(signupPage.page).toHaveURL('/signup');
-    const accountCreatedPage = await signupPage.signup(user, true);
-    await expect(accountCreatedPage.page).toHaveURL('/account_created');
-    await expect.soft(accountCreatedPage.accountCreatedTitle).toBeVisible();
-    await expect.soft(accountCreatedPage.accountCreatedMessage1).toBeVisible();
-    await expect.soft(accountCreatedPage.accountCreatedMessage2).toBeVisible();
-    await expect.soft(accountCreatedPage.continueButton).toBeVisible();
-    const homePage = await accountCreatedPage.continue();
-    await expect(homePage.page).toHaveURL('/');
-    await expect.soft(homePage.loggedAsLink).toBeVisible();
-    await expect.soft(homePage.loggedAsLink).toHaveText(`Logged in as ${user.name}`);
-
+    await signupPage.signup(user, true);
+    await expect(pom.accountCreatedPage.page).toHaveURL('/account_created');
+    await expect.soft(pom.accountCreatedPage.accountCreatedTitle).toBeVisible();
+    await expect.soft(pom.accountCreatedPage.accountCreatedMessage1).toBeVisible();
+    await expect.soft(pom.accountCreatedPage.accountCreatedMessage2).toBeVisible();
+    await expect.soft(pom.accountCreatedPage.continueButton).toBeVisible();
+    await pom.accountCreatedPage.continue();
+    await expect(pom.homePage.page).toHaveURL('/');
+    await expect.soft(pom.homePage.loggedAsLink).toBeVisible();
+    await expect.soft(pom.homePage.loggedAsLink).toHaveText(`Logged in as ${user.name}`);
   });
 
 });
