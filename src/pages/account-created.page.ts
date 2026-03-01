@@ -1,6 +1,5 @@
 import { Page, Locator } from '@playwright/test';
 import { BasePage } from './base.page';
-import { HomePage } from './home.page';
 
 export class AccountCreatedPage extends BasePage {
 
@@ -19,9 +18,7 @@ export class AccountCreatedPage extends BasePage {
     this.continueButton = page.getByRole('link', { name: /Continue/ });
   }
 
-  async continue(): Promise<HomePage> {
+  async continue(): Promise<void> {
     await this.continueButton.click();
-
-    return new HomePage(this.page);
   }
 }

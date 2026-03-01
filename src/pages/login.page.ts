@@ -1,8 +1,6 @@
 import { Page, Locator } from '@playwright/test';
 import { BasePage } from './base.page';
 import { User } from '../interfaces/interfaces';
-import { HomePage } from './home.page';
-import { SignupPage } from './signup.page';
 
 export class LoginPage extends BasePage {
 
@@ -35,14 +33,10 @@ export class LoginPage extends BasePage {
 
   }
 
-  async login(email: User['email'] = '', password: User['password'] = ''): Promise<HomePage> {
-
+  async login(email: User['email'] = '', password: User['password'] = ''): Promise<void> {
     await this.loginEmailField.fill(email);
     await this.loginPasswordField.fill(password);
     await this.loginButton.click();
-
-    return new HomePage(this.page);
-
   }
 
   async getLoginEmailValidationMessage(): Promise<string> {
@@ -61,13 +55,10 @@ export class LoginPage extends BasePage {
     return await this.signupNameField.evaluate((element: HTMLInputElement) => element.validationMessage);
   }
 
-  async signup(name: User['first_name'] = '', email: User['email'] = ''): Promise<SignupPage> {
-
+  async signup(name: User['first_name'] = '', email: User['email'] = ''): Promise<void> {
     await this.signupNameField.fill(name);
     await this.signupEmailField.fill(email);
     await this.signupButton.click();
-
-    return new SignupPage(this.page);
   }
 
 }

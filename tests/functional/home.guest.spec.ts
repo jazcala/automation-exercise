@@ -2,17 +2,19 @@ import { test, expect } from '../../src/fixtures/base-fixture';
 
 test.describe('homepage test - guest user', () => {
 
-  test('should have signup/login option to start the authentication flow', async ({ homePage }) => {
+  test('should have signup/login option to start the authentication flow', async ({ pom }) => {
 
-    await expect.soft(homePage.signupLoginLink).toBeVisible();
-    await expect.soft(homePage.signupLoginLink).toBeEnabled();
-    await expect.soft(homePage.signupLoginLink).toHaveAttribute('href', '/login');
+    await pom.homePage.navigate();
+    await expect.soft(pom.homePage.signupLoginLink).toBeVisible();
+    await expect.soft(pom.homePage.signupLoginLink).toBeEnabled();
+    await expect.soft(pom.homePage.signupLoginLink).toHaveAttribute('href', '/login');
 
   });
 
-  test('example: temporarily flaky test - run with npm run test:flaky @flaky', async ({ homePage }) => {
+  test('example: temporarily flaky test - run with npm run test:flaky @flaky', async ({ pom }) => {
     test.skip(true, 'Example: tag with @flaky and run test:flaky to isolate');
-    await expect(homePage.signupLoginLink).toBeVisible();
+    await pom.homePage.navigate();
+    await expect(pom.homePage.signupLoginLink).toBeVisible();
   });
 
 });

@@ -1,6 +1,5 @@
 import { BasePage } from './base.page';
 import { Page, Locator } from '@playwright/test';
-import { PaymentPage } from './payment.page';
 
 export class CheckoutPage extends BasePage {
 
@@ -15,10 +14,8 @@ export class CheckoutPage extends BasePage {
     this.placeOrderLink = this.page.getByRole('link', { name: 'Place Order' });
   }
 
-  async goToPayment(): Promise<PaymentPage> {
+  async goToPayment(): Promise<void> {
     await this.placeOrderLink.click();
-
-    return new PaymentPage(this.page);
   }
 
 }

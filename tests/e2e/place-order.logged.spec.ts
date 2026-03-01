@@ -1,28 +1,27 @@
 import { test, expect } from '../../src/fixtures/base-fixture';
-import { PaymentDonePage } from '../../src/pages/payment-done.page';
 
 test.describe('Place order flow @e2e', () => {
 
-  test('Success: place order as logged-in user', async ({ homePage }) => {
-    await expect(homePage.logoutLink).toBeVisible();
+  test('Success: place order as logged-in user', async ({ pom }) => {
+    await pom.homePage.navigate();
+    await expect(pom.homePage.logoutLink).toBeVisible();
 
-    await homePage.addFirstProductToCart();
-    const cartPage = await homePage.viewCartFromAddedModal();
-    await expect(cartPage.proceedToCheckoutButton).toBeVisible();
+    await pom.homePage.addFirstProductToCart();
+    await pom.homePage.viewCartFromAddedModal();
+    await expect(pom.cartPage.proceedToCheckoutButton).toBeVisible();
 
-    const checkoutPage = await cartPage.proceedToCheckout();
-    await expect(checkoutPage.page).toHaveURL(/checkout/);
-    await expect.soft(checkoutPage.checkoutBreadcrum).toBeVisible();
+    await pom.cartPage.proceedToCheckout();
+    await expect(pom.checkoutPage.page).toHaveURL(/checkout/);
+    await expect.soft(pom.checkoutPage.checkoutBreadcrum).toBeVisible();
 
-    const paymentPage = await checkoutPage.goToPayment();
-    await expect(paymentPage.page).toHaveURL(/payment/);
-    await paymentPage.fillCardAndConfirm('Test User', '4111...', '123', '12', '2028');
-    await paymentPage.orderSuccessMessage.waitFor({ state: 'visible', timeout: 2000 }).catch(() => { });
+    await pom.checkoutPage.goToPayment();
+    await expect(pom.paymentPage.page).toHaveURL(/payment/);
+    await pom.paymentPage.fillCardAndConfirm('Test User', '4111...', '123', '12', '2028');
+    await pom.paymentPage.orderSuccessMessage.waitFor({ state: 'visible', timeout: 2000 }).catch(() => { });
 
-    const paymentDonePage = new PaymentDonePage(paymentPage.page);
-    await paymentPage.page.waitForURL(/payment_done/);
+    await pom.paymentPage.page.waitForURL(/payment_done/);
 
-    await expect(paymentDonePage.orderPlacedHeading).toBeVisible();
-    await expect(paymentDonePage.congratulationsMessage).toBeVisible();
+    await expect(pom.paymentDonePage.orderPlacedHeading).toBeVisible();
+    await expect(pom.paymentDonePage.congratulationsMessage).toBeVisible();
   });
 });

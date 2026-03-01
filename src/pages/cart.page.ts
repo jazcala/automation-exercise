@@ -1,9 +1,6 @@
 import { Page, Locator } from '@playwright/test';
 import { BasePage } from './base.page';
 import { CartItem } from '../interfaces/interfaces';
-import { ProductPage } from './products.page';
-import { CheckoutPage } from './checkout.page';
-import { HomePage } from './home.page';
 
 export class CartPage extends BasePage {
 
@@ -46,11 +43,8 @@ export class CartPage extends BasePage {
     this.checkoutModalContinueOnCartButton = this.checkoutModal.getByRole('button', { name: 'Continue on Cart' });
   }
 
-  async proceedToCheckout(): Promise<CheckoutPage> {
-
+  async proceedToCheckout(): Promise<void> {
     await this.proceedToCheckoutButton.click();
-
-    return new CheckoutPage(this.page);
   }
 
   async proceedToCheckoutAsGuest(): Promise<void> {
@@ -87,16 +81,12 @@ export class CartPage extends BasePage {
     };
   }
 
-  async goToHomePageViaEmptyCartLink(): Promise<ProductPage> {
+  async goToHomePageViaEmptyCartLink(): Promise<void> {
     await this.emptyCartLink.click();
-
-    return new ProductPage(this.page);
   }
 
-  async navigaToHomeViaBreadcrum(): Promise<HomePage> {
+  async navigaToHomeViaBreadcrum(): Promise<void> {
     await this.homeBreadcrum.click();
-
-    return new HomePage(this.page);
   }
 
   async getItemCount(): Promise<number> {
