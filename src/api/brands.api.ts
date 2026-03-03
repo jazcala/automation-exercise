@@ -20,4 +20,15 @@ export class BrandsApi extends BaseApi {
     return await this.request.put(this.endpoint('/brandsList'));
   }
 
+  async invalidMethodPostAllBrands(): Promise<APIResponse> {
+    return await this.request.post(this.endpoint('/brandsList'));
+  }
+
+  async invalidMethodDeleteAllBrands(): Promise<APIResponse> {
+    return await this.request.delete(this.endpoint('/brandsList'));
+  }
+
+  async invalidMethodPatchAllBrands(): Promise<APIResponse> {
+    return await this.request.patch(this.endpoint('/brandsList'));
+  }
 }

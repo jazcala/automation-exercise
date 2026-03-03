@@ -1,16 +1,6 @@
 import { test, expect } from '../../src/fixtures/base-fixture';
 import { Product } from '../../src/interfaces/interfaces';
-
-const expectedProductSchema = {
-  id: expect.any(Number),
-  name: expect.any(String),
-  price: expect.any(String),
-  brand: expect.any(String),
-  category: {
-    usertype: { usertype: expect.any(String) },
-    category: expect.any(String)
-  }
-};
+import { productSchema } from '../../src/utils/api-schemas';
 
 test.describe('Products API Tests @api', () => {
 
@@ -27,7 +17,7 @@ test.describe('Products API Tests @api', () => {
 
     await test.step('Validate search results content and schema', async () => {
       products.forEach((product: Product) => {
-        expect.soft(product).toMatchObject(expectedProductSchema);
+        expect.soft(product).toMatchObject(productSchema);
       });
 
       const blueTop = products.find(p => p.id === 1);
@@ -65,7 +55,7 @@ test.describe('Products API Tests @api', () => {
 
     await test.step('Validate search results content and schema', async () => {
       products.forEach((product: Product) => {
-        expect.soft(product).toMatchObject(expectedProductSchema);
+        expect.soft(product).toMatchObject(productSchema);
 
         const searchMatch =
           product.name.toLowerCase().includes(searchTerm) ||
@@ -88,6 +78,91 @@ test.describe('Products API Tests @api', () => {
     expect.soft(body.responseCode).toBe(400);
     expect.soft(body.message).toBe('Bad request, search_product parameter is missing in POST request.');
 
+  });
+
+  test('search with empty string', async ({ productsApi }) => {
+    const response = await productsApi.searchProduct('');
+    expect(response.status()).toBe(200);
+    const body = await response.json();
+    expect.soft(body.responseCode).toBe(200);
+    console.log(body);
+    expect(Array.isArray(body.products)).toBe(true);
+  });
+
+  test('search with no-match term returns empty array', async ({ productsApi }) => {
+    const response = await productsApi.searchProduct('xyznonexistent123');
+    expect(response.status()).toBe(200);
+    const body = await response.json();
+    expect(body.responseCode).toBe(200);
+    expect(body.products).toBeDefined();
+    expect(Array.isArray(body.products)).toBe(true);
+    expect(body.products.length).toBe(0);
+  });
+
+  test('invalid method PUT on productsList returns 405', async ({ productsApi }) => {
+    const response = await productsApi.invalidMethodPutAllProducts();
+    expect(response.status()).toBe(200);
+    const body = await response.json();
+    expect(body.responseCode).toBe(405);
+    expect(body.message).toBe('This request method is not supported.');
+  });
+
+  test('invalid method DELETE on productsList returns 405', async ({ productsApi }) => {
+    const response = await productsApi.invalidMethodDeleteAllProducts();
+    expect(response.status()).toBe(200);
+    const body = await response.json();
+    expect(body.responseCode).toBe(405);
+    expect(body.message).toBe('This request method is not supported.');
+  });
+
+  test('invalid method PATCH on productsList returns 405', async ({ productsApi }) => {
+    const response = await productsApi.invalidMethodPatchAllProducts();
+    expect(response.status()).toBe(405);
+    const body = await response.json();
+    expect(body.detail).toBe('Method "PATCH" not allowed.');
+  });
+
+  test('invalid method GET on searchProduct returns 405', async ({ productsApi }) => {
+    const response = await productsApi.invalidMethodGetSearchProduct();
+    expect(response.status()).toBe(200);
+    const body = await response.json();
+    expect(body.responseCode).toBe(405);
+    expect(body.message).toBe('This request method is not supported.');
+  });
+
+  for (const searchTerm of ['top', 'tshirt', 'jean', 'polo']) {
+    test(`search product with term "${searchTerm}" returns matching results`, async ({ productsApi }) => {
+      const response = await productsApi.searchProduct(searchTerm);
+      expect(response.status()).toBe(200);
+      const body = await response.json();
+      expect(body.responseCode).toBe(200);
+      expect(body.products).toBeDefined();
+      expect(Array.isArray(body.products)).toBe(true);
+      expect(body.products.length).toBeGreaterThan(0);
+      body.products.forEach((product: Product) => {
+        const searchMatch =
+          product.name.toLowerCase().includes(searchTerm) ||
+          product.category.category.toLowerCase().includes(searchTerm) ||
+          product.brand.toLowerCase().includes(searchTerm);
+        expect(searchMatch, `Product ${product.id} should match '${searchTerm}'`).toBe(true);
+      });
+    });
+  }
+
+  test('search results are subset of full product list', async ({ productsApi }) => {
+    const [listResponse, searchResponse] = await Promise.all([
+      productsApi.getProductList(),
+      productsApi.searchProduct('top')
+    ]);
+    const listBody = await listResponse.json();
+    const searchBody = await searchResponse.json();
+    expect(listBody.responseCode).toBe(200);
+    expect(searchBody.responseCode).toBe(200);
+
+    const allProductIds = new Set(listBody.products.map((p: Product) => p.id));
+    searchBody.products.forEach((product: Product) => {
+      expect(allProductIds.has(product.id), `Product ${product.id} from search should exist in full list`).toBe(true);
+    });
   });
 
 });

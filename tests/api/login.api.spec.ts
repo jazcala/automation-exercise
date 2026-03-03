@@ -1,4 +1,5 @@
 import { test, expect } from '../../src/fixtures/base-fixture';
+import { loginSuccessSchema } from '../../src/utils/api-schemas';
 
 test.describe('Login API tests @api', () => {
 
@@ -7,9 +8,9 @@ test.describe('Login API tests @api', () => {
     const response = await loginApi.login({ email, password });
     expect(response.status()).toBe(200);
     const body = await response.json();
+    expect.soft(body).toMatchObject(loginSuccessSchema);
     expect.soft(body.responseCode).toBe(200);
     expect.soft(body.message).toBe('User exists!');
-
   });
 
   test('login without email parameter', async ({ loginApi }) => {
@@ -44,6 +45,30 @@ test.describe('Login API tests @api', () => {
     const body = await response.json();
     expect.soft(body.responseCode).toBe(404);
     expect.soft(body.message).toBe('User not found!');
+  });
+
+  test('login with empty body', async ({ loginApi }) => {
+    const response = await loginApi.loginWithFormData({});
+    expect(response.status()).toBe(200);
+    const body = await response.json();
+    expect(body.responseCode).toBe(400);
+    expect(body.message).toBe('Bad request, email or password parameter is missing in POST request.');
+  });
+
+  test('login with empty strings', async ({ loginApi }) => {
+    const response = await loginApi.loginWithFormData({ email: '', password: '' });
+    expect(response.status()).toBe(200);
+    const body = await response.json();
+    expect.soft(body.responseCode).toBe(404);
+    expect(body.message).toBe('User not found!');
+  });
+
+  test('login with invalid email format', async ({ loginApi }) => {
+    const response = await loginApi.loginWithFormData({ email: 'not-an-email', password: 'password' });
+    expect(response.status()).toBe(200);
+    const body = await response.json();
+    expect.soft(body.responseCode).toBe(404);
+    expect(body.message).toBe('User not found!');
   });
 
 });

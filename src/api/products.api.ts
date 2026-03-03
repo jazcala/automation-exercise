@@ -26,7 +26,21 @@ export class ProductsApi extends BaseApi {
    */
   async searchProduct(search?: string): Promise<APIResponse> {
     return await this.request.post(this.endpoint('/searchProduct'), { form: { ...(search !== undefined && { search_product: search }) } });
-
   }
 
+  async invalidMethodPutAllProducts(): Promise<APIResponse> {
+    return await this.request.put(this.endpoint('/productsList'));
+  }
+
+  async invalidMethodDeleteAllProducts(): Promise<APIResponse> {
+    return await this.request.delete(this.endpoint('/productsList'));
+  }
+
+  async invalidMethodPatchAllProducts(): Promise<APIResponse> {
+    return await this.request.patch(this.endpoint('/productsList'));
+  }
+
+  async invalidMethodGetSearchProduct(): Promise<APIResponse> {
+    return await this.request.get(this.endpoint('/searchProduct'));
+  }
 }

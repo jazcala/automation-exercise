@@ -15,8 +15,13 @@ export class LoginApi extends BaseApi {
   }
 
   public async loginWithInvalidMethod(): Promise<APIResponse> {
-    // We use .delete() instead of .post() to trigger the 405 error
     return await this.request.delete(this.endpoint('verifyLogin'));
   }
 
+  /**
+   * Login with raw form data (for edge case / negative testing)
+   */
+  public async loginWithFormData(formData: Record<string, string>): Promise<APIResponse> {
+    return await this.request.post(this.endpoint('verifyLogin'), { form: formData });
+  }
 }
