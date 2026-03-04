@@ -48,10 +48,23 @@ export class UserApi extends BaseApi {
   }
 
   /**
-    * get: Get user account details by email
-  */
+   * get: Get user account details by email
+   */
   public async getAccountDetailsByEmail(email: User['email']): Promise<APIResponse> {
     return await this.request.get(this.endpoint('/getUserDetailByEmail'), { params: { email } });
-  };
+  }
 
+  /**
+   * get: Get user account details without email parameter (for negative testing)
+   */
+  public async getAccountDetailsWithoutEmail(): Promise<APIResponse> {
+    return await this.request.get(this.endpoint('/getUserDetailByEmail'));
+  }
+
+  /**
+   * post: Create account with raw form data (for negative/validation testing)
+   */
+  public async createAccountWithFormData(formData: Record<string, string | number | boolean>): Promise<APIResponse> {
+    return await this.request.post(this.endpoint('/createAccount'), { form: formData });
+  }
 }

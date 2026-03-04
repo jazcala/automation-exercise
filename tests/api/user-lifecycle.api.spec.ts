@@ -4,6 +4,21 @@ import { test, expect } from '../../src/fixtures/base-fixture';
 
 test.describe('User Account API Lifecycle @api', () => {
 
+  for (const title of ['Mr.', 'Mrs.'] as const) {
+    test(`POST - create user with title "${title}" @smoke`, async ({ userApi }) => {
+      const testUser: User = await generateUserData();
+      const userWithTitle = { ...testUser, title };
+      const response = await userApi.createAccount(userWithTitle);
+      expect(response.status()).toBe(200);
+      const body = await response.json();
+      expect(body.responseCode).toBe(201);
+      expect(body.message).toBe('User created!');
+      const responseDelete = await userApi.deleteAccount({ email: testUser.email, password: testUser.password });
+      const bodyDelete = await responseDelete.json();
+      expect(bodyDelete.message).toBe('Account deleted!');
+    });
+  }
+
   test('POST - create user with required fields @smoke', async ({ userApi }) => {
     // *  Test 1: Create User (POST) -> Verify success.÷
     const testUser: User = await generateUserData();
@@ -118,6 +133,69 @@ test.describe('User Account API Lifecycle @api', () => {
     expect(bodyGet.responseCode).toBe(404);
     expect(bodyGet.message).toBe('Account not found with this email, try another email!');
 
+  });
+
+  test('GET - Get user with non-existent email returns 404', async ({ userApi }) => {
+    const response = await userApi.getAccountDetailsByEmail('nonexistent@example.com');
+    expect(response.status()).toBe(200);
+    const body = await response.json();
+    expect(body.responseCode).toBe(404);
+    expect(body.message).toBe('Account not found with this email, try another email!');
+  });
+
+  test('GET - Get user without email parameter returns 400', async ({ userApi }) => {
+    const response = await userApi.getAccountDetailsWithoutEmail();
+    expect(response.status()).toBe(200);
+    const body = await response.json();
+    expect(body.responseCode).toBe(400);
+    expect(body.message).toBe('Bad request, email parameter is missing in GET request.');
+  });
+
+  test('POST - Create account with missing emailrequired fields returns 400', async ({ userApi }) => {
+    const partialUser = await generateUserData();
+    const formWithoutEmail = {
+      name: partialUser.name,
+      password: partialUser.password,
+      firstname: partialUser.first_name,
+      lastname: partialUser.last_name,
+      address1: partialUser.address1,
+      country: partialUser.country,
+      zipcode: partialUser.zipcode,
+      state: partialUser.state,
+      city: partialUser.city,
+      mobile_number: partialUser.mobile_number
+    };
+    const response = await userApi.createAccountWithFormData(formWithoutEmail);
+    expect(response.status()).toBe(200);
+    const body = await response.json();
+    expect(body.responseCode).toBe(400);
+    expect(body.message).toBe('Bad request, email parameter is missing in POST request.');
+  });
+
+  test('POST - Create account with duplicate email returns 400', async ({ userApi }) => {
+    const testUser: User = await generateUserData();
+    const create1 = await userApi.createAccount(testUser);
+    expect(create1.status()).toBe(200);
+    const body1 = await create1.json();
+    expect(body1.responseCode).toBe(201);
+
+    const create2 = await userApi.createAccount(testUser);
+    expect(create2.status()).toBe(200);
+    const body2 = await create2.json();
+    expect(body2.responseCode).toBe(400);
+    expect(body2.message).toBe('Email already exists!');
+    await userApi.deleteAccount({ email: testUser.email, password: testUser.password });
+  });
+
+  test('DELETE - Delete account with wrong password returns error', async ({ preCreatedUser, userApi }) => {
+    const response = await userApi.deleteAccount({
+      email: preCreatedUser.email,
+      password: 'wrongpassword123'
+    });
+    expect(response.status()).toBe(200);
+    const body = await response.json();
+    expect.soft(body.responseCode).toBe(404);
+    expect.soft(body.message).toBe('Account not found!');
   });
 
 });
