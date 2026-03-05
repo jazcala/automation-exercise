@@ -4,9 +4,13 @@ npm-debug.log*
 
 # --- Playwright ---
 test-results/
+test-results.json
 playwright-report/
 blob-report/
 playwright/.cache/
+allure-results/
+allure-report/
+trends.json
 
 # Ignore local snapshots (Mac/Windows)
 *-darwin.png

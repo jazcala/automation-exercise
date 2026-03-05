@@ -249,6 +249,34 @@ After execution, the report is automatically generated. To view the latest resul
   npx playwright show-report
   ```
 
+### Quality Dashboard
+
+Metrics and reporting for portfolio visibility:
+
+| Tool | Command | Output |
+| ------ | --------- | -------- |
+| **Test Metrics** | `npm run metrics` | Success rate (%), total duration (ms), passed/failed/skipped/flaky counts, breakdown by project |
+| **API Coverage** | `npm run metrics:api-coverage` | Total % of API endpoints covered by automation |
+| **Trends** | `npm run trends` | Appends current run to `data/trends.json` (keeps last 30 entries) |
+| **Trends Chart** | `npm run trends:chart` | Generates `allure-report/trends-chart.html` for **historical analytics** of success rates and stability. |
+| **Allure Report** | `npm run report:allure` | Single-page report with Allure + Trends tabs; Environment shows API_Coverage, Success_Rate, Flaky_Tests; Deployed to GitHub Pages |
+
+**Workflow:** Run any test suite → `npm run metrics` → `npm run trends` → `npm run report:allure` → share with recruiters.
+
+```bash
+# Run a suite, then metrics (works for API, guest, logged-in, or full suite)
+npx playwright test --project=chromium-guest
+npm run metrics
+
+# Or use combined scripts that run tests + metrics
+npm run test:api:metrics      # API tests + metrics
+npm run test:guest:metrics    # Guest UI tests + metrics
+npm run test:logged:metrics   # Logged-in UI tests + metrics
+npm run test:all:metrics      # Full suite (excl. AI/visual) + metrics
+```
+
+**API Coverage Tracker:** Edit [coverage-map.json](coverage-map.json) to list endpoints and mark `automated: true/false`. The script calculates total % coverage.
+
 ---
 
 ### 🏛️ Pro-Tip: The `Dockerfile`

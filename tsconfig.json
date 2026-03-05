@@ -23,6 +23,9 @@
     "pages/**/*.ts",
     "fixtures/**/*.ts",
     "utils/**/*.ts",
-    "playwright.config.ts"
-, "tests/example.spec.ts.ignore"  ]
+    "playwright.config.ts",
+    "merge.config.ts",
+    "scripts/**/*.ts",
+    "tests/example.spec.ts.ignore"
+  ]
 }

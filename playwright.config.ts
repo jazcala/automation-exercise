@@ -9,7 +9,9 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 1 : undefined,
-  reporter: process.env.CI ? 'blob' : 'html',
+  reporter: process.env.CI
+    ? [['blob'], ['allure-playwright', { outputFolder: 'allure-results' }], ['json', { outputFile: 'test-results.json' }]]
+    : [['html'], ['allure-playwright', { outputFolder: 'allure-results' }], ['json', { outputFile: 'test-results.json' }]],
   globalTeardown: require.resolve('./tests/global.teardown'),
   use: {
     baseURL: appConfig.baseUrl,
