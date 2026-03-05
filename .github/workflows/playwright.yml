@@ -140,10 +140,9 @@ jobs:
 
       - name: Consolidate Allure Results
         run: |
+          # merge-multiple (v4) puts files flat in all-allure-results; copy into allure-results
           mkdir -p allure-results
-          for dir in all-allure-results/*/; do
-            [ -d "$dir" ] && cp -r "$dir"* allure-results/ 2>/dev/null || true
-          done
+          cp -r all-allure-results/. allure-results/ 2>/dev/null || true
 
       - name: Generate Allure report
         run: |
