@@ -1,0 +1,17 @@
+{
+  "description": "Automation Exercise API endpoints - mark automated: true when covered by tests",
+  "basePath": "/api",
+  "endpoints": [
+    { "method": "GET", "path": "/productsList", "description": "Get all products", "automated": true },
+    { "method": "POST", "path": "/productsList", "description": "Invalid method - 405", "automated": true },
+    { "method": "GET", "path": "/brandsList", "description": "Get all brands", "automated": true },
+    { "method": "PUT", "path": "/brandsList", "description": "Invalid method - 405", "automated": true },
+    { "method": "POST", "path": "/searchProduct", "description": "Search products", "automated": true },
+    { "method": "POST", "path": "/verifyLogin", "description": "Verify login", "automated": true },
+    { "method": "DELETE", "path": "/verifyLogin", "description": "Invalid method - 405", "automated": true },
+    { "method": "POST", "path": "/createAccount", "description": "Create user account", "automated": true },
+    { "method": "DELETE", "path": "/deleteAccount", "description": "Delete user account", "automated": true },
+    { "method": "PUT", "path": "/updateAccount", "description": "Update user account", "automated": true },
+    { "method": "GET", "path": "/getUserDetailByEmail", "description": "Get user by email", "automated": true }
+  ]
+}
