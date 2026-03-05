@@ -96,11 +96,20 @@ jobs:
         run: npm ci
 
       - name: Download all blob reports
+        id: download-blobs
         uses: actions/download-artifact@v4
+        continue-on-error: true
         with:
           path: all-blob-reports
           pattern: all-blob-reports-*
           merge-multiple: true
+
+      - name: Prepare blob reports for merge
+        run: |
+          mkdir -p all-blob-reports blob-reports-merged
+          find all-blob-reports -name "*.zip" -exec cp {} blob-reports-merged/ \; 2>/dev/null || true
+          rm -rf all-blob-reports
+          mv blob-reports-merged all-blob-reports
 
       - name: Download all allure-results
         uses: actions/download-artifact@v4
@@ -116,8 +125,13 @@ jobs:
           curl -fsSL "$TRENDS_URL" -o data/trends.json || echo "No previous trends found. Starting a new history."
 
       - name: Merge into JSON for metrics
-        # Merges all shards into a single result file for our custom scripts
-        run: npx playwright merge-reports --config=merge.config.ts ./all-blob-reports
+        run: |
+          if [ -z "$(ls -A all-blob-reports 2>/dev/null)" ]; then
+            echo '{"config":{},"suites":[]}' > test-results.json
+            echo "No blob reports found, created minimal test-results.json"
+          else
+            npx playwright merge-reports --config=merge.config.ts ./all-blob-reports
+          fi
 
       - name: Run metrics and update trends
         run: |
