@@ -144,6 +144,14 @@ jobs:
           mkdir -p allure-results
           cp -r all-allure-results/. allure-results/ 2>/dev/null || true
 
+      - name: Fetch Allure history from gh-pages
+        run: |
+          mkdir -p allure-results/history
+          BASE="https://${GITHUB_REPOSITORY%%/*}.github.io/${GITHUB_REPOSITORY#*/}"
+          for f in history.json history-trend.json categories-trend.json duration-trend.json retry-trend.json; do
+            curl -fsSL "$BASE/history/$f" -o "allure-results/history/$f" 2>/dev/null || true
+          done
+
       - name: Generate Allure report
         run: |
           npx ts-node scripts/write-allure-env.ts || true
