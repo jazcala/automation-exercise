@@ -1,7 +1,11 @@
 #!/usr/bin/env npx ts-node
 /**
- * Writes allure-results/environment.properties with API_Coverage, Success_Rate, Flaky_Tests.
- * Run before allure generate so the Environment widget shows these values.
+ * Prepares allure-results for report generation:
+ * - environment.properties (Environment widget)
+ * - executor.json (Executor block, report name, trends buildOrder)
+ * - categories.json (defect categories for Overview)
+ * - history/ (copied from previous run for trends)
+ * Run before allure generate.
  */
 
 import * as fs from 'fs';
@@ -10,15 +14,28 @@ import { computeMetrics } from './generate-metrics';
 import { getApiCoverage } from './api-coverage';
 
 const ALLURE_RESULTS = path.join(process.cwd(), 'allure-results');
+const ALLURE_HISTORY = path.join(process.cwd(), 'allure-history');
 const ENV_FILE = path.join(ALLURE_RESULTS, 'environment.properties');
+const EXECUTOR_FILE = path.join(ALLURE_RESULTS, 'executor.json');
+const CATEGORIES_FILE = path.join(ALLURE_RESULTS, 'categories.json');
 
-function writeAllureEnv(): void {
-  const metrics = computeMetrics(true);
-  const apiCoverage = getApiCoverage();
+const HISTORY_FILES = [
+  'history.json',
+  'history-trend.json',
+  'categories-trend.json',
+  'duration-trend.json',
+  'retry-trend.json',
+];
 
+function ensureAllureResults(): void {
   if (!fs.existsSync(ALLURE_RESULTS)) {
     fs.mkdirSync(ALLURE_RESULTS, { recursive: true });
   }
+}
+
+function writeEnvironmentProperties(): void {
+  const metrics = computeMetrics(true);
+  const apiCoverage = getApiCoverage();
 
   const lines: string[] = [
     `Run_Environment=${process.env.CI ? 'GitHub Actions' : 'Local Developer Machine'}`,
@@ -29,7 +46,92 @@ function writeAllureEnv(): void {
   ];
 
   fs.writeFileSync(ENV_FILE, lines.join('\n') + '\n', 'utf-8');
-  console.log(`\n📋 Allure environment.properties written to ${ENV_FILE}\n`);
 }
 
-writeAllureEnv();
+function writeExecutorJson(): void {
+  const repo = process.env.GITHUB_REPOSITORY ?? 'automation-exercise';
+  const runId = process.env.GITHUB_RUN_ID ?? 'local';
+  const buildOrder = process.env.GITHUB_RUN_NUMBER
+    ? parseInt(process.env.GITHUB_RUN_NUMBER, 10)
+    : Math.floor(Date.now() / 1000);
+  const baseUrl = `https://${repo.split('/')[0]}.github.io/${repo.split('/')[1] || 'automation-exercise'}`;
+
+  const executor: Record<string, string | number> = process.env.CI
+    ? {
+        reportName: `Build #${runId}`,
+        buildOrder,
+        reportUrl: `${baseUrl}/allure.html`,
+        buildName: `Playwright Tests #${runId}`,
+        buildUrl: `${process.env.GITHUB_SERVER_URL ?? 'https://github.com'}/${repo}/actions/runs/${runId}`,
+        type: 'github',
+        name: 'GitHub Actions',
+      }
+    : {
+        reportName: `Local Run ${new Date().toISOString().slice(0, 19)}`,
+        buildOrder,
+        reportUrl: '',
+        buildName: `Local ${process.env.USER ?? 'developer'}`,
+        buildUrl: '',
+        type: 'github',
+        name: 'Local',
+      };
+
+  fs.writeFileSync(EXECUTOR_FILE, JSON.stringify(executor, null, 2), 'utf-8');
+}
+
+function writeCategoriesJson(): void {
+  const categories = [
+    {
+      name: 'Product defects',
+      matchedStatuses: ['failed'],
+      messageRegex: '.*',
+    },
+    {
+      name: 'Test defects',
+      matchedStatuses: ['broken'],
+      messageRegex: '.*',
+    },
+    {
+      name: 'Flaky tests',
+      matchedStatuses: ['passed', 'failed', 'broken'],
+      flaky: true,
+    },
+    {
+      name: 'Skipped tests',
+      matchedStatuses: ['skipped'],
+      messageRegex: '.*',
+    },
+  ];
+  fs.writeFileSync(CATEGORIES_FILE, JSON.stringify(categories, null, 2), 'utf-8');
+}
+
+function copyHistoryFromPreviousRun(): void {
+  const historyDir = path.join(ALLURE_RESULTS, 'history');
+  if (!fs.existsSync(historyDir)) {
+    fs.mkdirSync(historyDir, { recursive: true });
+  }
+
+  // Local: copy from allure-history (persisted from last report)
+  const sourceDir = process.env.CI ? null : ALLURE_HISTORY;
+  if (sourceDir && fs.existsSync(sourceDir)) {
+    for (const f of HISTORY_FILES) {
+      const src = path.join(sourceDir, f);
+      if (fs.existsSync(src)) {
+        fs.copyFileSync(src, path.join(historyDir, f));
+      }
+    }
+    console.log('  📂 History copied from allure-history/');
+  }
+  // CI: history is fetched by workflow into allure-results/history before this script
+}
+
+function main(): void {
+  ensureAllureResults();
+  writeEnvironmentProperties();
+  writeExecutorJson();
+  writeCategoriesJson();
+  copyHistoryFromPreviousRun();
+  console.log(`\n📋 Allure env, executor, categories written to ${ALLURE_RESULTS}\n`);
+}
+
+main();

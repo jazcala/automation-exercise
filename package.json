@@ -22,7 +22,7 @@
     "metrics:api-coverage": "npx ts-node scripts/api-coverage.ts",
     "trends": "npx ts-node scripts/update-trends.ts",
     "trends:chart": "npx ts-node scripts/generate-trends-chart.ts",
- "report:generate": "npx ts-node scripts/write-allure-env.ts && rm -rf allure-report && npx allure generate -o allure-report ./allure-results && npm run trends:chart",
+ "report:generate": "npx ts-node scripts/write-allure-env.ts && rm -rf allure-report && npx allure generate -o allure-report ./allure-results && npx ts-node scripts/copy-allure-history.ts && npm run trends:chart",
 "report:allure": "npm run report:generate && npx allure open allure-report",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",

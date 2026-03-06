@@ -140,9 +140,16 @@ jobs:
 
       - name: Consolidate Allure Results
         run: |
+          # merge-multiple (v4) puts files flat in all-allure-results; copy into allure-results
           mkdir -p allure-results
-          for dir in all-allure-results/*/; do
-            [ -d "$dir" ] && cp -r "$dir"* allure-results/ 2>/dev/null || true
+          cp -r all-allure-results/. allure-results/ 2>/dev/null || true
+
+      - name: Fetch Allure history from gh-pages
+        run: |
+          mkdir -p allure-results/history
+          BASE="https://${GITHUB_REPOSITORY%%/*}.github.io/${GITHUB_REPOSITORY#*/}"
+          for f in history.json history-trend.json categories-trend.json duration-trend.json retry-trend.json; do
+            curl -fsSL "$BASE/history/$f" -o "allure-results/history/$f" 2>/dev/null || true
           done
 
       - name: Generate Allure report

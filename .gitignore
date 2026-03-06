@@ -10,6 +10,7 @@ blob-report/
 playwright/.cache/
 allure-results/
 allure-report/
+allure-history/
 trends.json
 
 # Ignore local snapshots (Mac/Windows)
