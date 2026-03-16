@@ -5,6 +5,28 @@ on:
   pull_request:
     branches: [main, master]
 
+  workflow_dispatch:
+    inputs:
+      environment_url:
+        description: "Target URL to run tests against (leave empty for default)"
+        required: false
+        default: ""
+      test_grep:
+        description: "Filter tests by tag (e.g., @smoke)"
+        required: false
+        default: ""
+      project:
+        description: "Choose the Browser or Test Suite"
+        required: true
+        default: "chromium-guest"
+        type: choice
+        options:
+          - api-tests
+          - chromium-guest
+          - chromium-logged-in
+          - firefox-logged-in
+          - webkit-logged-in
+
 jobs:
   # --- STEP 1: RUN API TESTS ---
   api-tests:
@@ -19,7 +41,14 @@ jobs:
       - name: Install dependencies
         run: npm ci
       - name: Run API Tests
-        run: npx playwright test --project=api-tests --reporter=blob --reporter=allure-playwright
+        run: |
+          npx playwright test --project=api-tests \
+          ${{ github.event.inputs.test_grep && format('--grep {0}', github.event.inputs.test_grep) || '' }} \
+          --reporter=blob --reporter=allure-playwright
+        env:
+          # Mapped to your appConfig readEnv('PLAYWRIGHT_BASE_URL')
+          PLAYWRIGHT_BASE_URL: ${{ github.event.inputs.environment_url }}
+
       - name: Upload API blob report
         if: always()
         uses: actions/upload-artifact@v4
@@ -57,8 +86,18 @@ jobs:
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
       - name: Run Playwright UI tests
-        # Excluding @visual and @ai-healing to keep CI metrics stable
-        run: npx playwright test --grep-invert "@visual|@api|@ai-healing" --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }} --reporter=blob --reporter=allure-playwright
+        # Dynamically uses the project from dispatch or defaults to chromium
+        # Also applies custom grep if provided
+        run: |
+          npx playwright test \
+          --project=${{ github.event.inputs.project || 'chromium-guest' }} \
+          --grep-invert "@visual|@api|@ai-healing" \
+          ${{ github.event.inputs.test_grep && format('--grep {0}', github.event.inputs.test_grep) || '' }} \
+          --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }} \
+          --reporter=blob --reporter=allure-playwright
+        env:
+          # Mapped to your appConfig readEnv('PLAYWRIGHT_BASE_URL')
+          PLAYWRIGHT_BASE_URL: ${{ github.event.inputs.environment_url }}
 
       - name: Upload UI blob reports
         if: always()
