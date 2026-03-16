@@ -18,17 +18,12 @@ on:
       project:
         description: "Choose the Browser or Test Suite"
         required: true
-        default: "chromium"
+        default: "chromium-guest"
         type: choice
         options:
-          - chromium
-          - firefox
-          - webkit
           - api-tests
-          - visual-regression
-          - ai-demo
-          - chromium-logged-in
           - chromium-guest
+          - chromium-logged-in
           - firefox-logged-in
           - webkit-logged-in
 
@@ -95,7 +90,7 @@ jobs:
         # Also applies custom grep if provided
         run: |
           npx playwright test \
-          --project=${{ github.event.inputs.project || 'chromium' }} \
+          --project=${{ github.event.inputs.project || 'chromium-guest' }} \
           --grep-invert "@visual|@api|@ai-healing" \
           ${{ github.event.inputs.test_grep && format('--grep {0}', github.event.inputs.test_grep) || '' }} \
           --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }} \
