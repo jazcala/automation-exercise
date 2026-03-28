@@ -14,9 +14,34 @@ type MyObjects = {
     pom: PomManager;
     productDetails: Product;
   };
-}
+};
+
+/** Network-level ad / analytics blocking for every UI test (see page fixture). */
+const AD_URL_SUBSTRINGS = [
+  'googleads',
+  'googlesyndication',
+  'googleadservices',
+  'google-analytics',
+  'doubleclick',
+  'adservices',
+  'analytics',
+  'carbonads',
+  'pagead2',
+] as const;
 
 export const test = userTest.extend<MyObjects>({
+  page: async ({ page }, use) => {
+    await page.route('**/*', (route) => {
+      const url = route.request().url();
+      if (AD_URL_SUBSTRINGS.some((s) => url.includes(s))) {
+        void route.abort();
+      } else {
+        void route.continue();
+      }
+    });
+    await use(page);
+  },
+
   pom: async ({ page }, use) => {
     await use(new PomManager(page));
   },

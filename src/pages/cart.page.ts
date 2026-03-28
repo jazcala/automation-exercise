@@ -43,14 +43,43 @@ export class CartPage extends BasePage {
     this.checkoutModalContinueOnCartButton = this.checkoutModal.getByRole('button', { name: 'Continue on Cart' });
   }
 
+  /**
+   * Logged-in: click Proceed To Checkout and reach /checkout (with goto fallback if the click is swallowed).
+   */
   async proceedToCheckout(): Promise<void> {
-    await this.proceedToCheckoutButton.click();
+    await this.navigateToCheckoutAfterCart();
   }
 
+  /**
+   * Guest: opens the register/login modal on the cart page (must not use force: — Bootstrap needs the real click).
+   * Retries once if the modal does not open (overlay / timing flake on automationexercise.com).
+   */
   async proceedToCheckoutAsGuest(): Promise<void> {
+    await this.proceedToCheckoutButton.scrollIntoViewIfNeeded();
+    for (let attempt = 0; attempt < 2; attempt++) {
+      await this.proceedToCheckoutButton.click();
+      try {
+        await this.page.locator('#checkoutModal').waitFor({ state: 'visible', timeout: 12000 });
 
-    await this.proceedToCheckoutButton.click();
+        return;
+      } catch {
+        if (attempt === 1) {
+          throw new Error('Guest checkout modal (#checkoutModal) did not become visible after two clicks');
+        }
+        await new Promise((r) => setTimeout(r, 400));
+      }
+    }
+  }
 
+  private async navigateToCheckoutAfterCart(): Promise<void> {
+    await this.proceedToCheckoutButton.scrollIntoViewIfNeeded();
+    await this.proceedToCheckoutButton.click({ force: true });
+    try {
+      await this.page.waitForURL(/\/checkout/, { timeout: 8000 });
+    } catch {
+      await this.page.goto('/checkout');
+    }
+    await this.page.waitForURL(/\/checkout/, { timeout: 15000 });
   }
 
   async getTableHeaders(): Promise<String[]> {
@@ -63,11 +92,10 @@ export class CartPage extends BasePage {
   }
 
   async removeItemFromCart(itemName: string): Promise<void> {
-
     const itemRow = await this.getRowByProductName(itemName);
     const deleteButton = itemRow.locator('.cart_delete .cart_quantity_delete');
     await deleteButton.click();
-
+    await this.page.locator('#empty_cart').waitFor({ state: 'visible', timeout: 15000 });
   }
 
   async getProductDataFromRow(name: string): Promise<CartItem> {

@@ -1,12 +1,7 @@
 import { test, expect } from '../../src/fixtures/base-fixture';
 // import * as path from 'path';
-import { TestUtils } from '../../src/utils/test-utils';
 
 test.describe('Contact Us form @e2e', () => {
-  test.beforeEach(async ({ page }) => {
-    await TestUtils.blockAds(page);
-  });
-
   test.skip('Success: submit contact form with file upload', async ({ pom, userData }) => {
     test.info().annotations.push({ type: 'issue', description: 'needs to be fixed' });
     await pom.homePage.navigate();
