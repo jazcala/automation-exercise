@@ -32,8 +32,20 @@ export abstract class ProductGridPage extends BasePage {
   protected async addProductToCartFromContainer(container: Locator): Promise<void> {
     await container.scrollIntoViewIfNeeded();
     await container.hover();
-    await container.locator('.overlay-content .add-to-cart').click();
-    await this.addedModal.waitFor({ state: 'visible' });
+    const addBtn = container.locator('.overlay-content .add-to-cart');
+    for (let attempt = 0; attempt < 2; attempt++) {
+      await addBtn.click();
+      try {
+        await this.page.locator('#cartModal').waitFor({ state: 'visible', timeout: 12000 });
+
+        return;
+      } catch {
+        if (attempt === 1) {
+          throw new Error('Added cart modal (#cartModal) did not become visible after two add-to-cart clicks');
+        }
+        await new Promise((r) => setTimeout(r, 400));
+      }
+    }
   }
 
   async viewCartFromAddedModal(): Promise<void> {

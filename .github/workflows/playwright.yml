@@ -24,6 +24,7 @@ on:
           - api-tests
           - chromium-guest
           - chromium-logged-in
+          - chromium-mocked
           - firefox-logged-in
           - webkit-logged-in
 
@@ -62,6 +63,40 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: allure-results-api
+          path: allure-results
+          retention-days: 1
+
+  # --- STEP 2a: MOCKED API TESTS (fast, isolated) ---
+  mocked-tests:
+    name: "Mocked API Tests"
+    needs: api-tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: "npm"
+      - name: Install dependencies
+        run: npm ci
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps
+      - name: Run Mocked Tests
+        run: npx playwright test --project=chromium-mocked --reporter=blob --reporter=allure-playwright
+        env:
+          PLAYWRIGHT_BASE_URL: ${{ github.event.inputs.environment_url }}
+      - name: Upload mocked blob report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: all-blob-reports-mocked
+          path: blob-report
+          retention-days: 1
+      - name: Upload mocked allure-results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-results-mocked
           path: allure-results
           retention-days: 1
 
@@ -118,7 +153,7 @@ jobs:
   # --- STEP 3: MERGE & PERSIST TRENDS ---
   merge-reports:
     if: always()
-    needs: [api-tests, ui-tests]
+    needs: [api-tests, ui-tests, mocked-tests]
     runs-on: ubuntu-latest
     permissions:
       contents: read

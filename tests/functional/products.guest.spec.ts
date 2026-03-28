@@ -1,11 +1,6 @@
 import { test, expect } from '../../src/fixtures/base-fixture';
-import { TestUtils } from '../../src/utils/test-utils';
 
 test.describe('Products page - guest user', () => {
-
-  test.beforeEach(async ({ page }) => {
-    await TestUtils.blockAds(page);
-  });
 
   test('verify all products page and product detail', async ({ pom }) => {
 

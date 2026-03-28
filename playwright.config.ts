@@ -77,5 +77,12 @@ export default defineConfig({
         storageState: GUEST_STATE // AI tests usually run as guest first
       },
     },
+    // --- MOCKED API TESTS (401, empty search, 500 checkout) ---
+    {
+      name: 'chromium-mocked',
+      testMatch: /tests\/mocked\/.*\.spec\.ts/,
+      dependencies: ['setup'],
+      use: { ...devices['Desktop Chrome'], storageState: LOGGED_IN_STATE },
+    },
   ],
 });
